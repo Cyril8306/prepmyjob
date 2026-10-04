@@ -1,0 +1,9 @@
+.env
+node_modules/
+.vercel/
+api/
+vercel.json
+.indexnow-key
+ROADMAP.md
+SEO-PLAN.md
+*.docx

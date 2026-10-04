@@ -1,0 +1,12 @@
+{
+  "name": "PrepMyJob — Coaching d'entretien IA",
+  "short_name": "PrepMyJob",
+  "description": "Préparez votre entretien d'embauche avec l'IA - personnalisé sur votre CV",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#14151a",
+  "theme_color": "#14151a",
+  "icons": [
+    { "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23e7c065'/><text x='50' y='72' font-family='system-ui,sans-serif' font-size='62' font-weight='700' fill='%23161208' text-anchor='middle'>P</text></svg>", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

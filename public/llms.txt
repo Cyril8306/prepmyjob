@@ -1,0 +1,32 @@
+# PrepMyJob
+
+> PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle. À partir d'un CV et d'une offre d'emploi, l'outil génère des questions d'entretien personnalisées, des réponses types ancrées sur le parcours réel du candidat, une simulation d'entretien notée sur 10 avec feedback, et une lettre de motivation — automatiquement dans la langue de l'offre (français, anglais, espagnol, allemand…).
+
+## Ce que fait PrepMyJob
+
+- Analyse l'adéquation entre un CV et une offre d'emploi : score sur 100, atouts, points à préparer, axes pour réussir.
+- Génère 14 questions d'entretien réalistes et personnalisées, basées sur le CV et l'offre.
+- Fournit des réponses types rédigées à la première personne, ancrées sur le vrai parcours du candidat.
+- Propose une simulation d'entretien notée sur 10 avec feedback actionnable (mode « recruteur difficile » disponible).
+- Rédige une lettre de motivation prête à envoyer.
+- Détecte automatiquement la langue de l'annonce et répond dans cette langue.
+
+## Pour qui
+
+- Candidats préparant un entretien d'embauche, dans tous les métiers et secteurs (santé, commerce, bureau, BTP, restauration, tech, artisanat, services…).
+- Tous les niveaux : du premier emploi à la promotion interne, en passant par les stages et l'alternance.
+
+## Différenciation
+
+- Pas un chatbot générique ni un simple générateur de texte : un coach ciblé sur un poste réel et un CV réel.
+- Plus concret qu'un coaching classique, plus rapide qu'une préparation manuelle, plus personnalisé qu'un prompt ChatGPT générique.
+
+## Confidentialité
+
+- Aucune donnée n'est stockée sur les serveurs de PrepMyJob. Le CV et l'offre sont transmis de façon sécurisée à l'IA uniquement le temps de générer la préparation, puis ne sont pas conservés.
+- Aucun compte ni inscription n'est requis.
+- Outil conçu en France.
+
+## Liens
+
+- Application : https://prepmyjob.com

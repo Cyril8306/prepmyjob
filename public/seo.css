@@ -1,0 +1,41 @@
+:root,[data-theme="dark"]{--bg:#14151a;--bg2:#191b22;--surface:#1d1f28;--card:#1a1c24;--border:#2c2e3a;--border-soft:#24262f;--text:#eef0f4;--muted:#9a9ba7;--faint:#6b6d79;--blue:#eef0f4;--btn-fg:#14151a;--accent:#e7c065;--accent-d:#d3a948;--green:#4cba84;--shadow:0 1px 0 rgba(255,255,255,.025) inset,0 18px 44px -26px rgba(0,0,0,.7);--header-bg:rgba(20,21,26,.82);--serif:'Space Grotesk',system-ui,sans-serif;--sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+[data-theme="light"]{--bg:#f6f7f9;--bg2:#fff;--surface:#eef0f4;--card:#fff;--border:#e3e6ec;--border-soft:#edeff3;--text:#191c24;--muted:#5f6573;--faint:#9aa0ad;--blue:#191c24;--btn-fg:#fff;--accent:#b07d1a;--accent-d:#956713;--green:#1f9d63;--shadow:0 1px 2px rgba(16,18,22,.04),0 14px 34px -20px rgba(16,18,22,.16);--header-bg:rgba(246,247,249,.85)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 80px}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+header{position:sticky;top:0;z-index:50;background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft);padding:13px 18px;margin-bottom:8px}
+.head-row{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:760px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .mark{width:32px;height:32px;background:var(--accent);color:#161208;border-radius:9px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:17px}
+.logo .wm{font-family:var(--serif);font-weight:600;font-size:16px}
+.head-cta{font-size:13px;font-weight:600;background:var(--blue);color:var(--btn-fg);padding:8px 15px;border-radius:9px}
+.head-cta:hover{text-decoration:none;opacity:.9}
+.crumb{font-size:12.5px;color:var(--muted);margin:18px 0 6px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(27px,5vw,38px);line-height:1.1;letter-spacing:-.02em;margin:6px 0 18px}
+.lead{font-size:17px;color:var(--text);background:var(--surface);border:1px solid var(--border-soft);border-left:3px solid var(--accent);border-radius:0 11px 11px 0;padding:16px 18px;margin-bottom:14px}
+h2{font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:-.02em;margin:38px 0 12px;line-height:1.2}
+h3{font-family:var(--serif);font-weight:600;font-size:18px;margin:24px 0 8px}
+p{margin-bottom:14px;color:var(--text)}
+.muted{color:var(--muted)}
+ul,ol{margin:0 0 14px 22px}li{margin-bottom:7px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+th,td{text-align:left;padding:11px 13px;border:1px solid var(--border-soft);vertical-align:top}
+th{background:var(--surface);font-weight:600;font-family:var(--serif)}
+.tip{background:rgba(231,192,101,.06);border:1px solid rgba(231,192,101,.2);border-radius:11px;padding:14px 16px;margin:16px 0;font-size:14.5px}
+.tip b{color:var(--accent)}
+.cta{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;margin:34px 0;box-shadow:var(--shadow);text-align:center}
+.cta h2{margin-top:0}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:var(--btn-fg);font-family:var(--sans);font-size:15px;font-weight:600;padding:13px 24px;border-radius:10px;margin-top:8px}
+.btn:hover{text-decoration:none;opacity:.92}
+.faq{border:1px solid var(--border-soft);border-radius:11px;margin-bottom:10px;overflow:hidden}
+.faq summary{padding:15px 16px;background:var(--surface);cursor:pointer;font-weight:600;font-size:15px;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';float:right;color:var(--accent);font-weight:700}
+.faq[open] summary::after{content:'–'}
+.faq .a{padding:14px 16px;font-size:14.5px;color:var(--muted)}
+footer{border-top:1px solid var(--border-soft);margin-top:46px;padding-top:22px;font-size:13px;color:var(--muted)}
+footer a{color:var(--muted)}footer .links{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.related{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0}
+.related a{font-size:13.5px;background:var(--surface);border:1px solid var(--border-soft);padding:8px 13px;border-radius:30px;color:var(--text)}
+.related a:hover{text-decoration:none;border-color:var(--accent)}
