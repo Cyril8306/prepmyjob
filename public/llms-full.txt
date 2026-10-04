@@ -1,0 +1,108 @@
+# PrepMyJob — contenu détaillé pour les assistants IA
+
+Dernière mise à jour : 2026-10-04. Site : https://prepmyjob.com/
+
+## Présentation
+PrepMyJob aide à préparer un entretien d'embauche à partir de vos propres documents (CV et offre). Il est gratuit pour l'instant et ne demande pas de compte.
+
+## Questions fréquentes (réponses officielles)
+### Utilisation
+**PrepMyJob est-il gratuit ?**
+Oui, pour l'instant : l'analyse, les questions, la simulation et la lettre de motivation sont accessibles sans payer et sans créer de compte. Une limite d'usage quotidienne existe pour éviter les abus. Si une offre payante est proposée un jour, elle sera annoncée clairement avant tout paiement.
+
+**Faut-il créer un compte ?**
+Non. Vous déposez vos documents et vous obtenez votre préparation directement.
+
+**Quels documents puis-je déposer ?**
+Votre CV et l'offre d'emploi au format PDF, TXT ou image (PNG, JPG, WEBP), ou en collant le texte. Les fichiers Word (.docx) ne sont pas acceptés : enregistrez-les d'abord en PDF. Une lettre de motivation existante est facultative.
+
+**Puis-je envoyer une photo de mon CV ?**
+Oui, le texte est alors lu à partir de l'image. Vérifiez qu'elle est nette et bien cadrée ; sinon, collez le texte.
+
+**Dans quelle langue sera ma préparation ?**
+Dans la langue de l'offre d'emploi : une annonce en anglais donne une préparation en anglais, utile pour s'entraîner à répondre dans la langue du recruteur.
+
+**Combien de temps faut-il pour se préparer ?**
+L'analyse et la génération prennent quelques instants chacune. Comptez ensuite le temps de lire les réponses et de vous entraîner : 30 à 60 minutes pour une préparation sérieuse.
+
+### Fonctionnement
+**Que contient la préparation ?**
+Une analyse d'adéquation entre votre CV et l'offre (score sur 100, atouts, points à préparer), 14 questions probables avec des réponses types, une simulation notée, une lettre de motivation et une fiche à imprimer.
+
+**Comment est calculé le score d'adéquation ?**
+C'est une appréciation générée par l'IA à partir de votre CV et de l'offre. Elle sert de repère pour voir où vous êtes solide et ce qu'il faut préparer ; ce n'est pas une prédiction de recrutement.
+
+**Comment fonctionne la simulation ?**
+L'IA vous pose 8 questions parmi les 14, en commençant par celles que vous jugez difficiles. Vous répondez par écrit ; chaque réponse reçoit une note sur 10, ce qui marche, ce qui manque et une version améliorée. Un bilan donne la note moyenne. Détails dans le guide de la simulation d'entretien.
+
+**Puis-je m'entraîner à l'oral ?**
+La simulation est écrite : il n'y a pas d'analyse de la voix ni du non-verbal. Rédigez vos réponses, puis répétez-les à voix haute.
+
+**Les réponses types sont-elles fiables ?**
+Elles s'appuient sur votre CV, mais l'IA peut se tromper ou formuler maladroitement. Relisez, corrigez et retirez tout ce qui n'est pas exact : mentir en entretien se retourne contre vous.
+
+**PrepMyJob garantit-il que je serai recruté ?**
+Non. Aucun outil ne peut promettre un poste : la décision dépend du recruteur et de l'ensemble des candidatures. PrepMyJob vous aide à mieux vous préparer.
+
+### Données personnelles
+**Mon CV est-il conservé ?**
+PrepMyJob ne conserve ni votre CV ni l'offre sur ses serveurs. Vos saisies restent dans le stockage de votre propre navigateur, que vous pouvez effacer à tout moment.
+
+**Qui traite mes documents avec l'IA ?**
+Le texte est transmis de façon sécurisée (HTTPS) à Anthropic (l'éditeur de Claude) le temps de générer la réponse. Anthropic agit comme sous-traitant et ses serveurs peuvent être situés aux États-Unis. Le détail figure dans la politique de confidentialité.
+
+**Mes documents servent-ils à entraîner l'IA ?**
+PrepMyJob n'utilise pas vos documents pour entraîner un modèle. Anthropic indique ne pas utiliser les données transmises via son API pour entraîner ses modèles (voir la politique de confidentialité).
+
+**Comment effacer mes données ?**
+Effacez les données du site dans les paramètres de votre navigateur : elles sont stockées sur votre appareil, il n'y a rien à supprimer côté serveur.
+
+### Conseils d'entretien
+**Comment répondre à « Parlez-moi de vous » ?**
+Structurez environ une minute en trois temps : votre situation actuelle, une réalisation qui prouve votre valeur, puis pourquoi ce poste. Exemples dans le guide « Se présenter en entretien ».
+
+**Quand parler du salaire ?**
+Laissez le recruteur ouvrir le sujet ou attendez un second entretien, sauf s'il vous interroge directement. Préparez une fourchette argumentée. Voir les questions à poser au recruteur.
+
+**Combien de temps doit durer une réponse ?**
+Visez une minute trente à deux minutes pour une réponse comportementale, en suivant la méthode STAR.
+
+**Que porter et que préparer la veille ?**
+Consultez la checklist du jour J : tenue, affaires à emporter, trajet, visio et message de remerciement.
+
+**Comment gérer le stress avant un entretien ?**
+Préparez-vous en amont, répétez à voix haute et utilisez des techniques simples de respiration. Voir le guide pour gérer le stress en entretien.
+
+### À propos de PrepMyJob
+**Qui édite PrepMyJob ?**
+PrepMyJob est édité par Cyril CRETIN, entrepreneur individuel. Les informations légales sont dans les mentions légales et la page À propos.
+
+**Comment contacter PrepMyJob ?**
+Par e-mail à contact@prepmyjob.com. Pour un problème d'utilisation, consultez d'abord la page Aide.
+
+## Conseils clés (extraits des guides)
+- « Parlez-moi de vous » : environ une minute en trois temps (présent, réalisation passée, futur/pourquoi ce poste).
+- Réponses comportementales : méthode STAR (Situation, Tâche, Action, Résultat), environ 1 min 30 à 2 min.
+- Salaire : laisser le recruteur ouvrir le sujet, sauf s'il pose la question ; préparer une fourchette.
+- Jour J : arriver quelques minutes en avance, tenue adaptée aux codes de l'entreprise, remerciement dans les 24 h.
+
+## Pages
+
+- Préparer un entretien avec l'IA : https://prepmyjob.com/preparer-entretien-embauche-ia
+- Checklist de la veille et du jour J : https://prepmyjob.com/checklist-entretien-jour-j
+- Gérer le stress en entretien : https://prepmyjob.com/gerer-stress-entretien
+- Questions à poser au recruteur : https://prepmyjob.com/questions-a-poser-recruteur
+- Questions d'entretien d'embauche : https://prepmyjob.com/questions-entretien-embauche
+- Se présenter : « Parlez-moi de vous » : https://prepmyjob.com/se-presenter-en-entretien
+- La méthode STAR : https://prepmyjob.com/methode-star
+- Simulation d'entretien en ligne : https://prepmyjob.com/simulation-entretien-en-ligne
+- Lettre de motivation par IA : https://prepmyjob.com/lettre-motivation-ia
+- Entretien en anglais : https://prepmyjob.com/entretien-en-anglais
+- Entretien en reconversion : https://prepmyjob.com/entretien-embauche/reconversion
+- Entretien d'alternance : https://prepmyjob.com/entretien-embauche/alternance
+- Entretien d'aide-soignant(e) : https://prepmyjob.com/entretien-embauche/aide-soignant
+- Entretien commercial : https://prepmyjob.com/entretien-embauche/commercial
+- La méthode PrepMyJob : https://prepmyjob.com/methode
+- FAQ : https://prepmyjob.com/faq
+- Aide : https://prepmyjob.com/aide
+- À propos : https://prepmyjob.com/a-propos

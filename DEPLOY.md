@@ -12,3 +12,6 @@ installe la configuration nginx à la 1re installation, puis le HTTPS (certbot) 
 
 Protections du relais : origine prepmyjob.com obligatoire, modèle imposé par le serveur (variable MODEL),
 max_tokens plafonné, taille limitée, quota par IP (PER_IP_DAY) et plafond global par jour (GLOBAL_DAY).
+
+Mise à jour du site (pages statiques) : `cd /var/www/prepmyjob && git pull`.
+Si `deploy/nginx-prepmyjob.conf` change : `bash deploy/update-nginx.sh` (réapplique nginx + HTTPS, restaure l'ancienne config en cas d'échec).

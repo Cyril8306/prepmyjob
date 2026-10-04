@@ -1,32 +1,36 @@
 # PrepMyJob
 
-> PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle. À partir d'un CV et d'une offre d'emploi, l'outil génère des questions d'entretien personnalisées, des réponses types ancrées sur le parcours réel du candidat, une simulation d'entretien notée sur 10 avec feedback, et une lettre de motivation — automatiquement dans la langue de l'offre (français, anglais, espagnol, allemand…).
+> PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle, en français. À partir d'un CV et d'une offre d'emploi, il génère une analyse d'adéquation, 14 questions d'entretien probables avec des réponses types, une simulation écrite notée sur 10, une lettre de motivation et une fiche à imprimer. Gratuit pour l'instant, sans compte. Édité par Cyril CRETIN, entrepreneur individuel (France).
 
-## Ce que fait PrepMyJob
+## Ce que fait l'outil (faits vérifiés)
+- Documents acceptés : PDF, TXT, images (PNG, JPG, WEBP) ou texte collé. Les fichiers Word ne sont pas acceptés.
+- Analyse CV/offre : score d'adéquation sur 100, atouts, points à préparer, conseils.
+- 14 questions probables (présentation, motivation, compétences, comportemental, mise en situation, pièges, clôture) avec réponses types à la première personne.
+- Simulation écrite : 8 questions parmi les 14, note sur 10 par réponse, ce qui marche, ce qui manque, version améliorée, bilan moyen. Option « recruteur exigeant ».
+- Langue : celle de l'offre d'emploi.
+- Limites : pas de mode oral, pas d'analyse de la voix ni du non-verbal ; l'IA peut se tromper ; aucune garantie d'embauche.
+- Données : le CV et l'offre ne sont pas conservés sur les serveurs de PrepMyJob ; le texte est transmis à Anthropic (Claude) le temps de la génération ; les saisies restent dans le navigateur.
 
-- Analyse l'adéquation entre un CV et une offre d'emploi : score sur 100, atouts, points à préparer, axes pour réussir.
-- Génère 14 questions d'entretien réalistes et personnalisées, basées sur le CV et l'offre.
-- Fournit des réponses types rédigées à la première personne, ancrées sur le vrai parcours du candidat.
-- Propose une simulation d'entretien notée sur 10 avec feedback actionnable (mode « recruteur difficile » disponible).
-- Rédige une lettre de motivation prête à envoyer.
-- Détecte automatiquement la langue de l'annonce et répond dans cette langue.
+## Guides
+- [Préparer un entretien avec l'IA](https://prepmyjob.com/preparer-entretien-embauche-ia): La méthode complète en 5 étapes, de votre CV à la simulation.
+- [Checklist de la veille et du jour J](https://prepmyjob.com/checklist-entretien-jour-j): Tenue, affaires, trajet, visio et message de remerciement.
+- [Gérer le stress en entretien](https://prepmyjob.com/gerer-stress-entretien): Respiration, ancrage et préparation pour rester clair.
+- [Questions à poser au recruteur](https://prepmyjob.com/questions-a-poser-recruteur): Les bonnes questions de fin d'entretien et les pièges à éviter.
+- [Questions d'entretien d'embauche](https://prepmyjob.com/questions-entretien-embauche): Les questions fréquentes, leurs pièges et des exemples de réponses.
+- [Se présenter : « Parlez-moi de vous »](https://prepmyjob.com/se-presenter-en-entretien): Une structure en trois temps et trois exemples à adapter.
+- [La méthode STAR](https://prepmyjob.com/methode-star): Structurer une réponse comportementale avec un exemple complet.
+- [Simulation d'entretien en ligne](https://prepmyjob.com/simulation-entretien-en-ligne): Comment fonctionne la simulation notée sur 10.
+- [Lettre de motivation par IA](https://prepmyjob.com/lettre-motivation-ia): Une lettre alignée sur votre CV et l'offre.
+- [Entretien en anglais](https://prepmyjob.com/entretien-en-anglais): Phrases clés et vocabulaire quand on n'est pas bilingue.
+- [Entretien en reconversion](https://prepmyjob.com/entretien-embauche/reconversion): Justifier un changement de voie et valoriser ses compétences.
+- [Entretien d'alternance](https://prepmyjob.com/entretien-embauche/alternance): Convaincre avec peu d'expérience.
+- [Entretien d'aide-soignant(e)](https://prepmyjob.com/entretien-embauche/aide-soignant): Motivation, situations difficiles, bientraitance.
+- [Entretien commercial](https://prepmyjob.com/entretien-embauche/commercial): Gestion du refus, « vendez-moi ce stylo », résultats chiffrés.
+- [La méthode PrepMyJob](https://prepmyjob.com/methode): Comment l'IA analyse vos documents, et ses limites.
+- [FAQ](https://prepmyjob.com/faq): Les réponses aux questions les plus fréquentes.
+- [Aide](https://prepmyjob.com/aide): Formats acceptés et solutions aux problèmes courants.
+- [À propos](https://prepmyjob.com/a-propos): Qui édite PrepMyJob et nos principes éditoriaux.
 
-## Pour qui
-
-- Candidats préparant un entretien d'embauche, dans tous les métiers et secteurs (santé, commerce, bureau, BTP, restauration, tech, artisanat, services…).
-- Tous les niveaux : du premier emploi à la promotion interne, en passant par les stages et l'alternance.
-
-## Différenciation
-
-- Pas un chatbot générique ni un simple générateur de texte : un coach ciblé sur un poste réel et un CV réel.
-- Plus concret qu'un coaching classique, plus rapide qu'une préparation manuelle, plus personnalisé qu'un prompt ChatGPT générique.
-
-## Confidentialité
-
-- Aucune donnée n'est stockée sur les serveurs de PrepMyJob. Le CV et l'offre sont transmis de façon sécurisée à l'IA uniquement le temps de générer la préparation, puis ne sont pas conservés.
-- Aucun compte ni inscription n'est requis.
-- Outil conçu en France.
-
-## Liens
-
-- Application : https://prepmyjob.com
+## Contact
+- contact@prepmyjob.com
+- Dernière mise à jour : 2026-10-04
