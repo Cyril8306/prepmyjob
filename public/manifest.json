@@ -2,7 +2,7 @@
   "name": "PrepMyJob — Coaching d'entretien IA",
   "short_name": "PrepMyJob",
   "description": "Préparez votre entretien d'embauche avec l'IA - personnalisé sur votre CV",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#14151a",
   "theme_color": "#14151a",
