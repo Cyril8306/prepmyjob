@@ -22,6 +22,16 @@ if [ ! -f .env ]; then
 else
   echo ".env déjà présent : conservé."
 fi
+# Paiement et e-mails : demandés une seule fois (rien ne s'affiche à l'écran, rien n'est écrit dans le dépôt)
+if ! grep -q '^STRIPE_SECRET_KEY=' .env; then
+  read -rsp "Colle ta clé secrète Stripe (sk_live_..., ou Entrée pour plus tard) : " K; echo
+  [ -n "$K" ] && printf 'STRIPE_SECRET_KEY=%s\n' "$K" >> .env && echo "Clé Stripe enregistrée."
+fi
+if ! grep -q '^SMTP_PASS=' .env; then
+  read -rsp "Colle le mot de passe de la boîte contact@prepmyjob.com (ou Entrée pour plus tard) : " K; echo
+  [ -n "$K" ] && printf 'SMTP_PASS=%s\n' "$K" >> .env && echo "Mot de passe e-mail enregistré."
+fi
+mkdir -p data && chmod 700 data
 
 echo "== 3/5 Relais IA (pm2) =="
 node -v

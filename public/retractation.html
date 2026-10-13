@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14151a">
+<title>Renoncer au contrat (rétractation) | PrepMyJob</title>
+<meta name="description" content="Rétractez-vous de votre pass PrepMyJob en ligne, dans les 14 jours suivant la commande. Accusé de réception envoyé par e-mail.">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://prepmyjob.com/retractation">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/seo.css">
+<script>(function(){try{var t=localStorage.getItem('cei_theme');if(!t)t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();</script>
+<style>
+.form label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+.form label small{font-weight:400;color:var(--muted)}
+.form input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 13px;font-family:inherit;font-size:16px}
+.form input:focus{outline:none;border-color:var(--accent)}
+.form .btn{border:none;cursor:pointer;margin-top:20px}
+.form .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);margin-left:8px}
+.recap{background:var(--surface);border:1px solid var(--border-soft);border-radius:11px;padding:14px 16px;margin:16px 0}
+.recap p{margin-bottom:6px}
+.err{color:#e76a57;font-size:14px;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-row">
+    <a class="logo" href="/"><span class="mark">P</span><span class="wm">PrepMyJob</span></a>
+    <a class="head-cta" href="/app">Préparer mon entretien</a>
+  </div>
+</header>
+<div class="wrap">
+  <nav class="crumb"><a href="/">Accueil</a> › Renoncer au contrat</nav>
+  <h1>Renoncer au contrat (rétractation)</h1>
+  <p class="lead">Vous avez acheté un pass PrepMyJob il y a moins de 14 jours ? Vous pouvez vous rétracter ici, sans donner de motif. Comme l'accès au pass est immédiat, chaque offre d'emploi déjà préparée reste due (1/5 du prix) et le reste vous est remboursé (<a href="/cgv">CGV</a>, article 7).</p>
+
+  <div class="form" id="step1">
+    <label for="nom">Nom et prénom</label>
+    <input id="nom" autocomplete="name" maxlength="120">
+    <label for="email">E-mail utilisé pour le paiement</label>
+    <input id="email" type="email" autocomplete="email" inputmode="email" maxlength="200">
+    <label for="reference">Référence de commande <small>(facultatif : elle figure dans l'e-mail de confirmation)</small></label>
+    <input id="reference" maxlength="120">
+    <label for="email_ar">E-mail pour recevoir l'accusé de réception <small>(facultatif : par défaut, celui du paiement)</small></label>
+    <input id="email_ar" type="email" autocomplete="email" inputmode="email" maxlength="200">
+    <button class="btn" type="button" onclick="verifier()">Continuer</button>
+    <p class="err" id="err1" hidden></p>
+  </div>
+
+  <div class="form" id="step2" hidden>
+    <h2>Vérifiez votre déclaration</h2>
+    <div class="recap" id="recap"></div>
+    <button class="btn" type="button" id="confirmer" onclick="confirmer()">Confirmer la rétractation</button>
+    <button class="btn ghost" type="button" onclick="modifier()">Modifier</button>
+    <p class="err" id="err2" hidden></p>
+  </div>
+
+  <div id="step3" hidden>
+    <h2>Votre rétractation est enregistrée</h2>
+    <div class="recap" id="resultat"></div>
+  </div>
+
+  <p class="muted" style="margin-top:28px">Vous pouvez aussi nous écrire à <a href="mailto:contact@prepmyjob.com">contact@prepmyjob.com</a>, ou utiliser le modèle de formulaire de l'article 7 des <a href="/cgv">CGV</a>.</p>
+
+  <footer>
+    <div class="links">
+      <a href="/">Accueil</a>
+      <a href="/guides">Tous les guides</a>
+      <a href="/faq">FAQ</a>
+      <a href="/aide">Aide</a>
+      <a href="/a-propos">À propos</a>
+      <a href="/mentions-legales">Mentions légales</a>
+      <a href="/confidentialite">Confidentialité</a>
+      <a href="/prix">Prix</a>
+      <a href="/cgv">CGV</a>
+      <a href="/retractation">Renoncer au contrat ici</a>
+    </div>
+    <p style="margin-top:14px">© 2026 PrepMyJob — Cyril CRETIN. Votre CV n'est pas conservé sur nos serveurs.</p>
+  </footer>
+</div>
+<script>
+var EMAIL_RE=/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function donnees(){return {nom:$('nom').value.trim(),email:$('email').value.trim(),reference:$('reference').value.trim(),email_ar:$('email_ar').value.trim()}}
+function erreur(id,msg){var e=$(id);e.textContent=msg;e.hidden=!msg}
+function verifier(){
+  var d=donnees();
+  if(d.nom.length<2)return erreur('err1','Indiquez votre nom et prénom.');
+  if(!EMAIL_RE.test(d.email))return erreur('err1',"Indiquez l'e-mail utilisé pour le paiement.");
+  if(d.email_ar&&!EMAIL_RE.test(d.email_ar))return erreur('err1',"L'e-mail pour l'accusé de réception n'est pas valide.");
+  erreur('err1','');
+  $('recap').innerHTML='<p><strong>Contrat :</strong> Pass PrepMyJob 30 jours</p><p><strong>Nom :</strong> '+esc(d.nom)+'</p><p><strong>E-mail du paiement :</strong> '+esc(d.email)+'</p><p><strong>Référence :</strong> '+esc(d.reference||'(aucune)')+'</p><p><strong>Accusé de réception envoyé à :</strong> '+esc(d.email_ar||d.email)+'</p>';
+  $('step1').hidden=true;$('step2').hidden=false;
+}
+function modifier(){$('step2').hidden=true;$('step1').hidden=false}
+function confirmer(){
+  var b=$('confirmer');b.disabled=true;b.textContent='Envoi…';erreur('err2','');
+  var d=donnees();d.confirm=true;
+  fetch('/api/retractation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+    .then(function(x){
+      if(!x.ok||!x.j.ok)throw new Error((x.j.error&&x.j.error.message)||'Envoi impossible.');
+      try{localStorage.removeItem('cei_pass')}catch(e){}
+      $('resultat').innerHTML='<p><strong>Reçue le :</strong> '+esc(x.j.le)+' (heure de Paris)</p><p>'+esc(x.j.issue)+'</p><p>'
+        +(x.j.email_envoye?'Un accusé de réception a été envoyé à '+esc(d.email_ar||d.email)+'.':"L'accusé de réception vous sera envoyé par e-mail. Conservez cette page en attendant.")+'</p>';
+      $('step2').hidden=true;$('step3').hidden=false;
+    })
+    .catch(function(e){erreur('err2',e.message+' Vous pouvez aussi écrire à contact@prepmyjob.com.');b.disabled=false;b.textContent='Confirmer la rétractation'});
+}
+</script>
+</body>
+</html>

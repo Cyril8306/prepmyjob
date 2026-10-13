@@ -1,14 +1,14 @@
 # PrepMyJob — contenu détaillé pour les assistants IA
 
-Dernière mise à jour : 2026-10-04. Site : https://prepmyjob.com/
+Dernière mise à jour : 2026-10-13. Site : https://prepmyjob.com/
 
 ## Présentation
-PrepMyJob aide à préparer un entretien d'embauche à partir de vos propres documents (CV et offre). Il est gratuit pour l'instant et ne demande pas de compte.
+PrepMyJob aide à préparer un entretien d'embauche à partir de vos propres documents (CV et offre). L'analyse d'adéquation est gratuite ; la préparation complète demande un pass de 30 jours à 14 € (paiement unique, sans abonnement). Aucun compte n'est demandé.
 
 ## Questions fréquentes (réponses officielles)
 ### Utilisation
 **PrepMyJob est-il gratuit ?**
-Oui, pour l'instant : l'analyse, les questions, la simulation et la lettre de motivation sont accessibles sans payer et sans créer de compte. Une limite d'usage quotidienne existe pour éviter les abus. Si une offre payante est proposée un jour, elle sera annoncée clairement avant tout paiement.
+L'analyse d'adéquation entre votre CV et l'offre est gratuite et sans compte, dans la limite d'un usage quotidien. La préparation complète (14 questions et réponses types, simulation notée, lettre de motivation) demande un pass de 30 jours à 14 €, en paiement unique, sans abonnement.
 
 **Faut-il créer un compte ?**
 Non. Vous déposez vos documents et vous obtenez votre préparation directement.

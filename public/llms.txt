@@ -1,6 +1,6 @@
 # PrepMyJob
 
-> PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle, en français. À partir d'un CV et d'une offre d'emploi, il génère une analyse d'adéquation, 14 questions d'entretien probables avec des réponses types, une simulation écrite notée sur 10, une lettre de motivation et une fiche à imprimer. Gratuit pour l'instant, sans compte. Édité par Cyril CRETIN, entrepreneur individuel (France).
+> PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle, en français. À partir d'un CV et d'une offre d'emploi, il génère une analyse d'adéquation, 14 questions d'entretien probables avec des réponses types, une simulation écrite notée sur 10, une lettre de motivation et une fiche à imprimer. Analyse gratuite et sans compte ; préparation complète avec un pass de 30 jours à 14 € (paiement unique, sans abonnement). Édité par Cyril CRETIN, entrepreneur individuel (France).
 
 ## Ce que fait l'outil (faits vérifiés)
 - Documents acceptés : PDF, TXT, images (PNG, JPG, WEBP) ou texte collé. Les fichiers Word ne sont pas acceptés.
@@ -9,6 +9,7 @@
 - Simulation écrite : 8 questions parmi les 14, note sur 10 par réponse, ce qui marche, ce qui manque, version améliorée, bilan moyen. Option « recruteur exigeant ».
 - Langue : celle de l'offre d'emploi.
 - Limites : pas de mode oral, pas d'analyse de la voix ni du non-verbal ; l'IA peut se tromper ; aucune garantie d'embauche.
+- Prix : analyse d'adéquation gratuite ; questions, simulation et lettre avec le pass de 30 jours à 14 € (5 offres d'emploi au maximum, paiement unique par Stripe). Rétractation en ligne : https://prepmyjob.com/retractation
 - Données : le CV et l'offre ne sont pas conservés sur les serveurs de PrepMyJob ; le texte est transmis à Anthropic (Claude) le temps de la génération ; les saisies restent dans le navigateur.
 
 ## Guides
@@ -27,10 +28,12 @@
 - [Entretien d'aide-soignant(e)](https://prepmyjob.com/entretien-embauche/aide-soignant): Motivation, situations difficiles, bientraitance.
 - [Entretien commercial](https://prepmyjob.com/entretien-embauche/commercial): Gestion du refus, « vendez-moi ce stylo », résultats chiffrés.
 - [La méthode PrepMyJob](https://prepmyjob.com/methode): Comment l'IA analyse vos documents, et ses limites.
+- [Prix](https://prepmyjob.com/prix): Ce qui est gratuit et ce que contient le pass de 30 jours à 14 €.
+- [Conditions générales de vente](https://prepmyjob.com/cgv): Contenu du pass, rétractation, garantie, médiation.
 - [FAQ](https://prepmyjob.com/faq): Les réponses aux questions les plus fréquentes.
 - [Aide](https://prepmyjob.com/aide): Formats acceptés et solutions aux problèmes courants.
 - [À propos](https://prepmyjob.com/a-propos): Qui édite PrepMyJob et nos principes éditoriaux.
 
 ## Contact
 - contact@prepmyjob.com
-- Dernière mise à jour : 2026-10-04
+- Dernière mise à jour : 2026-10-13

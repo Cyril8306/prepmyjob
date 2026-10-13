@@ -39,7 +39,7 @@
       "inLanguage": ["fr", "en", "es", "de"],
       "description": "À partir d'un CV et d'une offre d'emploi, PrepMyJob génère des questions d'entretien personnalisées, des réponses types ancrées sur le parcours réel, une simulation notée sur 10 avec feedback, et une lettre de motivation.",
       "featureList": ["Analyse d'adéquation CV / offre", "Questions d'entretien personnalisées", "Réponses types à la première personne", "Simulation d'entretien notée sur 10", "Feedback actionnable", "Lettre de motivation", "Détection automatique de la langue de l'offre"],
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "offers": [{ "@type": "Offer", "name": "Analyse d'adéquation CV / offre", "price": "0", "priceCurrency": "EUR" }, { "@type": "Offer", "name": "Pass PrepMyJob 30 jours", "price": "14.00", "priceCurrency": "EUR" }],
       "publisher": { "@id": "https://prepmyjob.com/#org" }
     }
   ]
@@ -145,7 +145,7 @@ footer a{text-underline-offset:3px}
 <header>
   <div class="wrap bar">
     <a class="logo" href="/"><i>P</i>PrepMyJob</a>
-    <nav aria-label="Navigation principale"><a href="#comment">Comment ça marche</a><a href="#exemple">Exemple</a><a href="#faq">Questions</a><a href="/guides">Guides</a></nav>
+    <nav aria-label="Navigation principale"><a href="#comment">Comment ça marche</a><a href="#exemple">Exemple</a><a href="#faq">Questions</a><a href="/guides">Guides</a><a href="/prix">Prix</a></nav>
     <button class="theme" id="theme" aria-label="Changer de thème" type="button">◐</button>
     <a class="btn sm" href="/app"><span class="long">Préparer mon entretien</span><span class="short">Commencer</span></a>
   </div>
@@ -162,7 +162,7 @@ footer a{text-underline-offset:3px}
         <a class="btn" href="/app">Préparer mon entretien →</a>
         <a class="btn ghost" href="#exemple">Voir un exemple</a>
       </div>
-      <p class="note">Gratuit pour l'instant · sans compte · dans la langue de l'offre</p>
+      <p class="note">Analyse gratuite · sans compte · dans la langue de l'offre</p>
     </div>
 
     <aside class="mock" aria-label="Exemple illustratif de résultat">
@@ -257,11 +257,11 @@ footer a{text-underline-offset:3px}
   <div class="wrap">
     <h2>Questions fréquentes</h2>
     <div style="margin-top:24px">
-      <details><summary>ChatGPT gratuit ne suffit-il pas ?</summary><p>Il peut générer des questions si vous savez bien lui demander. PrepMyJob part de votre CV et de l'offre réelle, rassemble au même endroit l'analyse, les réponses, la simulation notée, la lettre et une fiche imprimable, sans que vous ayez à rédiger vos instructions. À vous de juger : l'essai est gratuit.</p></details>
+      <details><summary>ChatGPT gratuit ne suffit-il pas ?</summary><p>Il peut générer des questions si vous savez bien lui demander. PrepMyJob part de votre CV et de l'offre réelle, rassemble au même endroit l'analyse, les réponses, la simulation notée, la lettre et une fiche imprimable, sans que vous ayez à rédiger vos instructions. À vous de juger : l'analyse est gratuite.</p></details>
       <details><summary>Faut-il un compte ?</summary><p>Non. Vous déposez vos documents et vous obtenez votre préparation directement.</p></details>
       <details><summary>Dans quelle langue est la préparation ?</summary><p>Dans la langue de l'offre d'emploi : une annonce en anglais donne une préparation en anglais, utile pour s'entraîner à répondre dans la langue du recruteur.</p></details>
       <details><summary>La note sur 10 prédit-elle mes chances d'être recruté ?</summary><p>Non. C'est un repère pédagogique pour vous entraîner et repérer ce qui manque de précision dans vos réponses. Aucun outil ne peut garantir une embauche.</p></details>
-      <details><summary>Combien ça coûte ?</summary><p>PrepMyJob est gratuit pour l'instant. Si une offre payante est proposée un jour, elle sera annoncée clairement avant tout paiement.</p></details>
+      <details><summary>Combien ça coûte ?</summary><p>L'analyse d'adéquation entre votre CV et l'offre est gratuite. La préparation complète (14 questions avec réponses types, simulation notée, lettre de motivation) demande un pass de 30 jours à 14 €, en paiement unique, sans abonnement. Détails sur la page <a href="/prix">Prix</a>.</p></details>
       <p style="margin-top:20px"><a href="/faq">Voir toute la FAQ →</a></p>
     </div>
   </div>
@@ -271,7 +271,7 @@ footer a{text-underline-offset:3px}
   <div class="wrap">
     <h2>Préparez votre prochain entretien dès maintenant</h2>
     <div class="cta-row"><a class="btn" href="/app">Préparer mon entretien →</a></div>
-    <p class="note">Gratuit pour l'instant · sans compte</p>
+    <p class="note">Analyse gratuite · pass 30 jours à 14 € · sans compte</p>
   </div>
 </section>
 </main>
@@ -290,6 +290,9 @@ footer a{text-underline-offset:3px}
       <a href="/a-propos">À propos</a>
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/confidentialite">Confidentialité</a>
+      <a href="/prix">Prix</a>
+      <a href="/cgv">CGV</a>
+      <a href="/retractation">Renoncer au contrat ici</a>
     </nav>
     <p>© 2026 PrepMyJob — Cyril CRETIN. Votre CV n'est pas conservé sur nos serveurs.</p>
   </div>
