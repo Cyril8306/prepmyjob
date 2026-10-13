@@ -6,4 +6,6 @@ vercel.json
 .indexnow-key
 ROADMAP.md
 SEO-PLAN.md
+CLAUDE.md
+.claude/
 *.docx

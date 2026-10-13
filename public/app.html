@@ -526,10 +526,12 @@ function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{l
 function toggleTheme(){const cur=document.documentElement.getAttribute('data-theme')||'dark';setTheme(cur==='light'?'dark':'light')}
 setTheme(document.documentElement.getAttribute('data-theme')||'dark');
 
+let SERVER_DATE=null; // horloge du serveur (en-tête HTTP Date) : sert à dater la lettre, jamais l'IA
 async function callClaude(messages,maxTokens,system){
   const body={model:MODEL,max_tokens:maxTokens||2000,messages};
   if(system)body.system=system;
   const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const hd=new Date(r.headers.get('Date')||'');if(!isNaN(hd))SERVER_DATE=hd;
   const d=await r.json();
   if(!r.ok||d.error)throw new Error((d.error&&d.error.message)||(t('err.api')+' ('+r.status+')'));
   return d.content[0].text;
@@ -540,6 +542,20 @@ function parseJSON(txt){
   let start,end;
   if(c>=0&&(c<a||a<0)){start=c;end=e2}else{start=a;end=b}
   try{return JSON.parse(txt.slice(start,end+1))}catch(e){throw new Error(t('err.illegible'))}
+}
+/* Liste JSON tolérante : si la réponse est coupée, on garde les objets complets au lieu de tout perdre. */
+function parseList(txt){
+  try{const v=parseJSON(txt);if(Array.isArray(v))return v.filter(q=>q&&q.q);if(v&&Array.isArray(v.questions))return v.questions.filter(q=>q&&q.q)}catch(e){}
+  const out=[];let depth=0,inStr=false,esc=false,start=-1;
+  for(let i=Math.max(0,txt.indexOf('['));i<txt.length;i++){
+    const ch=txt[i];
+    if(inStr){if(esc)esc=false;else if(ch==='\\')esc=true;else if(ch==='"')inStr=false;continue}
+    if(ch==='"')inStr=true;
+    else if(ch==='{'){if(depth===0)start=i;depth++}
+    else if(ch==='}'&&depth>0){depth--;if(depth===0){try{const o=JSON.parse(txt.slice(start,i+1));if(o&&o.q)out.push(o)}catch(e){}}}
+  }
+  if(!out.length)throw new Error(t('err.illegible'));
+  return out;
 }
 function loadingHTML(msg){return '<div class="loading"><div class="spinner"></div><div class="msg">'+msg+'</div></div>'}
 
@@ -633,14 +649,21 @@ function renderAnalyse(){
 }
 
 /* ---------- GENERATE QUESTIONS ---------- */
+/* 14 questions = 2 demandes de 7 en parallèle : une demande de 14 dépasse 4 000 tokens (réponse coupée) et ~110 s (délai du relais). */
+const Q_LOTS=[
+  "Génère 7 questions d'entretien : 1 de présentation, 2 de motivation (pour le poste et pour l'entreprise), 4 sur les compétences techniques du poste.",
+  "Génère 7 questions d'entretien : 2 comportementales (méthode STAR), 2 mises en situation concrètes du poste, 2 questions pièges sur les points faibles du CV par rapport à l'offre, 1 question de clôture."
+];
 async function genQuestions(){
   const out=$('#analyseOut');
+  $('#genLoad')&&$('#genLoad').remove();
   out.insertAdjacentHTML('beforeend','<div class="card" id="genLoad">'+thinking(SEQ.questions)+'</div>');
   const sys="Tu es un recruteur expert qui prépare un candidat à son entretien. Génère des questions RÉALISTES que le recruteur posera, basées sur le CV et l'offre. Chaque question doit avoir une réponse type rédigée À LA PREMIÈRE PERSONNE (comme si le candidat la disait), ancrée sur SON parcours réel. Réponds dans la langue de l'offre. UNIQUEMENT du JSON valide.";
-  const prompt="OFFRE:\n"+S.offre+"\n\nCV:\n"+S.cv+"\n\nGénère 14 questions d'entretien variées (présentation, motivation, compétences techniques du poste, comportemental/STAR, mise en situation, pièges, clôture). JSON array: [{\"cat\":\"catégorie courte\",\"q\":\"la question\",\"why\":\"pourquoi le recruteur pose ça + sur quel élément du CV ça s'appuie\",\"model\":\"réponse type complète à la 1ère personne, 3-6 phrases, ancrée sur le parcours réel du candidat\",\"tips\":\"1 conseil court\"}]";
+  const fmt=" JSON array: [{\"cat\":\"catégorie courte\",\"q\":\"la question\",\"why\":\"pourquoi le recruteur pose ça + sur quel élément du CV ça s'appuie\",\"model\":\"réponse type complète à la 1ère personne, 3-6 phrases, ancrée sur le parcours réel du candidat\",\"tips\":\"1 conseil court\"}]";
   try{
-    const r=await callClaude([{role:'user',content:prompt}],4000,sys);
-    const qs=parseJSON(r);
+    const res=await Promise.allSettled(Q_LOTS.map(l=>callClaude([{role:'user',content:"OFFRE:\n"+S.offre+"\n\nCV:\n"+S.cv+"\n\n"+l+fmt}],4000,sys).then(parseList)));
+    const qs=[].concat(...res.filter(x=>x.status==='fulfilled').map(x=>x.value));
+    if(!qs.length)throw res[0].reason;
     S.questions=qs.map((q,i)=>({id:i,...q}));S.ratings={};save();
     $('#genLoad')&&$('#genLoad').remove();
     toast(tf('toast.questionsReady',qs.length));
@@ -774,16 +797,26 @@ function simDebrief(){
 function simReset(){S.sim.running=false;S.sim.scores=[];$('#simRun').style.display='none';$('#simStart').style.display='block';refreshSim()}
 
 /* ---------- LETTER ---------- */
+/* L'IA ajoute parfois du Markdown (**gras**, # titre) : les symboles resteraient visibles dans la lettre copiée. */
+function plainText(s){return s.replace(/\*\*([^*\n]+)\*\*/g,'$1').replace(/__([^_\n]+)__/g,'$1').replace(/^#{1,6}\s+/gm,'').replace(/\*\*/g,'').trim()}
+/* Date du jour (horloge du serveur, à défaut l'appareil) écrite dans la langue de la lettre. */
+function letterDate(txt){
+  const d=SERVER_DATE||new Date();
+  const lang=S.analysis&&S.lang?S.lang:/\b(Dear|Sincerely|regards)\b/i.test(txt)?'en':/\b(Estimad[oa]s?|Atentamente)\b/i.test(txt)?'es':/\b(Sehr geehrte|freundlichen)\b/i.test(txt)?'de':'fr';
+  const o={day:'numeric',month:'long',year:'numeric'};
+  try{return d.toLocaleDateString(lang,o)}catch(e){return d.toLocaleDateString('fr-FR',o)}
+}
 async function genLetter(){
   if(!(S.cv&&S.offre)){toast(t('toast.needCvOffre'));go('setup');return}
   $('#btnLetter').disabled=true;
   $('#letterOut').style.display='block';$('#letterText').value='';
   const prev=$('#letterOut').querySelector('.loading');if(!prev)$('#letterText').insertAdjacentHTML('beforebegin',thinking(SEQ.letter));
-  const sys="Tu es un expert en candidatures. Rédige une lettre de motivation percutante, sincère et personnalisée, basée sur le CV et l'offre. Détecte la langue de l'offre et rédige DANS CETTE LANGUE. Pas de placeholders type [Nom], utilise les vraies infos du CV. Réponds uniquement avec le texte de la lettre.";
+  const sys="Tu es un expert en candidatures. Rédige une lettre de motivation percutante, sincère et personnalisée, basée sur le CV et l'offre. Détecte la langue de l'offre et rédige DANS CETTE LANGUE. Pas de placeholders type [Nom], utilise les vraies infos du CV. Seule exception : n'écris jamais de date toi-même ; là où la lettre porte la date, écris exactement {{DATE}} (elle sera remplacée automatiquement par la date du jour complète). Texte brut uniquement : aucune mise en forme Markdown (pas d'astérisques, pas de dièses). Réponds uniquement avec le texte de la lettre.";
   const prompt="OFFRE:\n"+S.offre+"\n\nCV:\n"+S.cv+(S.lm?"\n\nANCIENNE LETTRE (pour le style/infos):\n"+S.lm:"")+"\n\nRédige la lettre de motivation complète, prête à envoyer.";
   try{
-    const r=await callClaude([{role:'user',content:prompt}],2000,sys);
-    S.letter=r.trim();save();stopThinking();
+    const r=plainText(await callClaude([{role:'user',content:prompt}],2000,sys));
+    const date=letterDate(r);
+    S.letter=r.includes('{{DATE}}')?r.split('{{DATE}}').join(date):date+'\n\n'+r;save();stopThinking();
     $('#letterOut').querySelectorAll('.loading').forEach(x=>x.remove());
     $('#letterText').value=S.letter;
   }catch(e){$('#letterOut').querySelectorAll('.loading').forEach(x=>x.remove());toast(e.message)}
