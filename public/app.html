@@ -55,7 +55,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 ::selection{background:rgba(227,179,65,.28)}
 
 /* HEADER */
-header{position:sticky;top:0;z-index:50;background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft);margin:0 -18px 22px;padding:14px 18px}
+header{position:sticky;top:0;z-index:50;background:var(--header-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft);margin:0 0 22px;padding:14px 18px}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:880px;margin:0 auto}
 .head-right{display:flex;align-items:center;gap:14px}
 .theme-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:36px;height:36px;border-radius:10px;display:grid;place-items:center;cursor:pointer;transition:.18s;flex-shrink:0;line-height:0}
@@ -114,7 +114,7 @@ h3{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.7px;te
 .drop input{display:none}
 .drop .req{position:absolute;top:12px;right:13px;font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
 .drop.ok .req{color:var(--green)}
-.up-grid{display:grid;gap:12px}
+.up-grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}.up-grid>*{min-width:0}
 @media(min-width:640px){.up-grid{grid-template-columns:1fr 1fr}.up-grid .full{grid-column:1/-1}}
 .paste-toggle{font-size:13px;color:var(--accent);cursor:pointer;margin-top:14px;display:inline-block;font-weight:500}
 .paste-toggle:hover{color:var(--accent-d)}
@@ -234,7 +234,8 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .install-btn[hidden]{display:none}
 .inst-steps{margin:14px 0 6px 20px;font-size:15px;line-height:1.6}
 .inst-steps li{margin-bottom:10px}
-@media(max-width:420px){.score-ring .lbl{display:none}.head-right{gap:10px}}
+@media(max-width:420px){.score-ring .lbl{display:none}.head-right{gap:10px}.head-row:has(#installBtn:not([hidden])) .logo small,.head-row:has(#installBtn:not([hidden])) #themeBtn{display:none}}
+@media(max-width:359px){.card{padding:20px 16px}.head-row:has(#installBtn:not([hidden])) .score-ring{display:none}}
 
 /* PAYWALL */
 .pass-ok{border-left-color:var(--green)}

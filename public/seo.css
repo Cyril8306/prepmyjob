@@ -39,3 +39,6 @@ footer a{color:var(--muted)}footer .links{display:flex;gap:16px;flex-wrap:wrap;m
 .related{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0}
 .related a{font-size:13.5px;background:var(--surface);border:1px solid var(--border-soft);padding:8px 13px;border-radius:30px;color:var(--text)}
 .related a:hover{text-decoration:none;border-color:var(--accent)}
+.tbl{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0}
+.tbl table{margin:0}
+@media(max-width:480px){table{font-size:13.5px}th,td{padding:8px 9px;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}}
