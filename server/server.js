@@ -215,7 +215,8 @@ async function stripe(method, pathname, params, idempotencyKey) {
     signal: AbortSignal.timeout(20000),
   });
   const d = await r.json();
-  if (!r.ok) throw Object.assign(new Error((d.error && d.error.type) || 'stripe'), { status: r.status });
+  // Message exact de Stripe dans le journal du serveur (pm2 logs) : une panne se diagnostique en une fois
+  if (!r.ok) throw Object.assign(new Error(((d.error && [d.error.type, d.error.code, d.error.message].filter(Boolean).join(' / ')) || 'stripe').slice(0, 400)), { status: r.status });
   return d;
 }
 const sessionPaid = (s) => s && s.status === 'complete' && (s.payment_status === 'paid' || s.payment_status === 'no_payment_required')
