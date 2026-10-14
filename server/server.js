@@ -8,12 +8,19 @@
  *    le relais ne peut donc pas servir à autre chose qu'à PrepMyJob
  *  - origine obligatoire = prepmyjob.com (ou localhost pour les tests)
  *  - modèle imposé par le serveur (variable MODEL), max_tokens fixé par étape, tailles plafonnées
- *  - étapes gratuites (analyse, lecture d'image) : quota par IP et par jour + plafond global par jour
+ *  - étapes gratuites (analyse, lecture d'image, lecture d'une annonce par son lien) : quota par IP et par jour
+ *    + plafond global par jour
  *  - étapes payantes (questions, simulation, lettre) : pass vérifié ici (30 jours, 5 offres, 200 générations)
+ *  - lecture d'annonce par lien : http(s) seulement, ports 80/443, adresses internes refusées au moment
+ *    même de la connexion, 4 redirections et 4 Mo au plus, 10 s
  *  - aucun CV ni offre n'est écrit dans les journaux ni sur le disque : un pass ne garde que des empreintes
  *    (e-mail, offres), des compteurs et la référence du paiement
  */
 const http = require('http');
+const https = require('https');
+const dns = require('dns');
+const net = require('net');
+const zlib = require('zlib');
 const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
@@ -321,6 +328,138 @@ async function createPassFromSession(s) {
   return p;
 }
 
+/** Compte un appel gratuit (IP + plafond global du jour). Renvoie le message de refus, ou null si c'est accepté. */
+function quotaGratuit(ipKey) {
+  const used = perIp.get(ipKey) || 0;
+  if (used >= PER_IP_DAY) return 'Limite quotidienne atteinte. Réessaie demain.';
+  if (globalCount >= GLOBAL_DAY) return 'Le service est très sollicité aujourd’hui. Réessaie demain.';
+  perIp.set(ipKey, used + 1); globalCount += 1;
+  return null;
+}
+
+/** Appel au modèle (consignes fixes). Renvoie le texte de la réponse, ou lève une erreur. */
+async function claude(system, content, maxTokens) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages: [{ role: 'user', content }] }),
+    signal: AbortSignal.timeout(110000),
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error('ia_' + r.status);
+  return (data.content && data.content[0] && data.content[0].text) || '';
+}
+
+/* ---------- Lecture d'une annonce à partir de son lien ---------- */
+function ipInterne(ip) {
+  if (net.isIPv4(ip)) {
+    const [a, b] = ip.split('.').map(Number);
+    return a === 0 || a === 10 || a === 127 || a >= 224 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+  }
+  const v = String(ip).toLowerCase();
+  if (v.startsWith('::ffff:')) return ipInterne(v.slice(7));
+  return v === '::' || v === '::1' || v.startsWith('fc') || v.startsWith('fd') || v.startsWith('fe8') || v.startsWith('fe9') || v.startsWith('fea') || v.startsWith('feb');
+}
+// Résolution contrôlée au moment même de la connexion : le lien ne peut pas viser le serveur ni un réseau interne
+function lookupPublic(host, opts, cb) {
+  if (typeof opts === 'function') { cb = opts; opts = {}; }
+  dns.lookup(host, { all: true }, (err, addrs) => {
+    if (err) return cb(err);
+    if (!addrs.length || addrs.some((a) => ipInterne(a.address))) return cb(new Error('adresse_interdite'));
+    if (opts && opts.all) return cb(null, addrs);
+    cb(null, addrs[0].address, addrs[0].family);
+  });
+}
+function lirePage(lien, sauts = 0) {
+  return new Promise((resolve, reject) => {
+    let url;
+    try { url = new URL(lien); } catch (e) { return reject(new Error('lien_invalide')); }
+    if (!/^https?:$/.test(url.protocol) || (url.port && !['80', '443'].includes(url.port)) || url.username || url.password) return reject(new Error('lien_invalide'));
+    // Une adresse IP écrite en clair ne passe pas par la résolution DNS : contrôle direct
+    const hoteIp = url.hostname.replace(/^\[|\]$/g, '');
+    if (net.isIP(hoteIp) && ipInterne(hoteIp)) return reject(new Error('adresse_interdite'));
+    const req = (url.protocol === 'https:' ? https : http).get(url, {
+      lookup: lookupPublic, timeout: 10000,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PrepMyJob/1.0; +https://prepmyjob.com/aide)', Accept: 'text/html,application/xhtml+xml', 'Accept-Language': 'fr-FR,fr;q=0.9', 'Accept-Encoding': 'gzip, deflate, br' },
+    }, (r) => {
+      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
+        r.resume();
+        if (sauts >= 4) return reject(new Error('trop_de_redirections'));
+        return resolve(lirePage(new URL(r.headers.location, url).href, sauts + 1));
+      }
+      if (r.statusCode !== 200) { r.resume(); return reject(Object.assign(new Error('http_' + r.statusCode), { status: r.statusCode })); }
+      const enc = String(r.headers['content-encoding'] || '').toLowerCase();
+      const flux = enc === 'gzip' ? r.pipe(zlib.createGunzip()) : enc === 'br' ? r.pipe(zlib.createBrotliDecompress()) : enc === 'deflate' ? r.pipe(zlib.createInflate()) : r;
+      let taille = 0; const morceaux = [];
+      flux.on('data', (c) => { taille += c.length; if (taille > 4 * 1024 * 1024) { req.destroy(); reject(new Error('page_trop_lourde')); } else morceaux.push(c); });
+      flux.on('end', () => resolve(Buffer.concat(morceaux).toString('utf8')));
+      flux.on('error', reject);
+    });
+    req.on('timeout', () => req.destroy(new Error('delai')));
+    req.on('error', reject);
+  });
+}
+const entites = (s) => String(s || '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+  .replace(/&#39;|&apos;/g, "'").replace(/&#(\d+);/g, (m, n) => String.fromCodePoint(+n)).replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&amp;/g, '&');
+const texteDeHtml = (h) => entites(String(h || '').replace(/<(script|style|noscript|svg)[\s\S]*?<\/\1>/gi, ' ')
+  .replace(/<br\s*\/?>|<\/(p|li|h\d|div|tr|ul|ol)>/gi, '\n').replace(/<li[^>]*>/gi, '- ').replace(/<[^>]+>/g, ' '))
+  .replace(/[ \t ]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+// La plupart des sites d'emploi décrivent l'annonce en données structurées (schema.org JobPosting)
+function annonceStructuree(html) {
+  for (const m of html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
+    let data; try { data = JSON.parse(m[1].trim()); } catch (e) { continue; }
+    const items = [].concat(data).flatMap((x) => (x && x['@graph']) ? x['@graph'] : [x]);
+    const jp = items.find((x) => x && [].concat(x['@type']).includes('JobPosting'));
+    if (!jp) continue;
+    const nom = (o) => (typeof o === 'string' ? o : o && typeof o.name === 'string' ? o.name : '');
+    const lieux = [].concat(jp.jobLocation || []).map((l) => l && l.address && [l.address.addressLocality, l.address.postalCode].filter((v) => typeof v === 'string').join(' ')).filter(Boolean);
+    const texte = [
+      typeof jp.title === 'string' ? jp.title : '',
+      nom(jp.hiringOrganization) && 'Entreprise : ' + nom(jp.hiringOrganization),
+      lieux.length ? 'Lieu : ' + lieux.join(', ') : '',
+      [].concat(jp.employmentType || []).filter((v) => typeof v === 'string').length ? 'Contrat : ' + [].concat(jp.employmentType).join(', ') : '',
+      '', texteDeHtml(texteDeHtml(jp.description)),
+    ].filter((l, i) => l || i === 4).join('\n').trim();
+    return { titre: typeof jp.title === 'string' ? jp.title : '', texte };
+  }
+  return null;
+}
+const MSG_LIEN_BLOQUE = "Ce site ne laisse pas lire ses annonces automatiquement (c'est le cas d'Indeed). Faites une capture d'écran de l'annonce et déposez-la dans « L'offre d'emploi ».";
+
+async function handleLien(req, res, d) {
+  const lien = typeof d.url === 'string' ? d.url.trim() : '';
+  if (!lien || lien.length > 2000) return fail(res, 400, 'Lien invalide.');
+  const refus = quotaGratuit(ipKeyOf(req));
+  if (refus) return fail(res, 429, refus);
+  let hote = '?';
+  try { hote = new URL(lien).hostname; } catch (e) { return fail(res, 400, 'Lien invalide.'); }
+  let html;
+  try { html = await lirePage(lien); }
+  catch (e) {
+    console.log(`${new Date().toISOString()} lien site=${hote} erreur=${e.message}`);
+    return fail(res, 422, e.message === 'lien_invalide' || e.message === 'adresse_interdite' ? 'Lien invalide.' : MSG_LIEN_BLOQUE, 'lien_bloque');
+  }
+  let a = annonceStructuree(html), source = 'structure';
+  if (!a || a.texte.length < 200) {
+    // Pas de données structurées : l'IA isole le texte de l'annonce dans le texte brut de la page
+    const brut = texteDeHtml(html).slice(0, 25000);
+    let t = '';
+    if (KEY && brut.length > 200) {
+      try {
+        t = (await claude("Tu reçois le texte brut d'une page web. Si elle contient une offre d'emploi, recopie uniquement le texte de l'offre (intitulé, entreprise, lieu, contrat, missions, profil, conditions), fidèlement, sans rien inventer ni résumer. S'il n'y a pas d'offre d'emploi, réponds exactement : AUCUNE_OFFRE", brut, 2500)).trim();
+      } catch (e) { t = ''; }
+    }
+    if (!t || t.includes('AUCUNE_OFFRE') || t.length < 150) {
+      console.log(`${new Date().toISOString()} lien site=${hote} resultat=aucune_offre`);
+      return fail(res, 422, MSG_LIEN_BLOQUE, 'lien_bloque');
+    }
+    a = { titre: t.split('\n')[0].slice(0, 120), texte: t }; source = 'ia';
+  }
+  console.log(`${new Date().toISOString()} lien site=${hote} source=${source}`);
+  return send(res, 200, { titre: a.titre, texte: a.texte.slice(0, 30000), source });
+}
+
 /* ---------- Routes ---------- */
 async function handleAI(req, res, d) {
   const step = STEPS[d.step];
@@ -346,10 +485,8 @@ async function handleAI(req, res, d) {
     }
     p.calls += 1; savePasses();
   } else {
-    const used = perIp.get(ipKey) || 0;
-    if (used >= PER_IP_DAY) return fail(res, 429, 'Limite quotidienne atteinte. Réessaie demain.');
-    if (globalCount >= GLOBAL_DAY) return fail(res, 429, 'Le service est très sollicité aujourd’hui. Réessaie demain.');
-    perIp.set(ipKey, used + 1); globalCount += 1;
+    const refus = quotaGratuit(ipKey);
+    if (refus) return fail(res, 429, refus);
   }
   const refund = () => { if (p) { p.calls -= 1; if (newOffre) p.offres = p.offres.filter((k) => k !== newOffre); savePasses(); } };
 
@@ -492,6 +629,7 @@ async function handleRetract(req, res, d) {
 const ROUTES = {
   '/api/ai': handleAI, '/api/checkout': handleCheckout, '/api/pass/activate': handleActivate,
   '/api/pass/recover': handleRecover, '/api/pass/status': handleStatus, '/api/retractation': handleRetract,
+  '/api/offre-lien': handleLien,
 };
 
 const server = http.createServer(async (req, res) => {

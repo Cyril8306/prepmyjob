@@ -1,6 +1,6 @@
 # PrepMyJob — contenu détaillé pour les assistants IA
 
-Dernière mise à jour : 2026-10-13. Site : https://prepmyjob.com/
+Dernière mise à jour : 2026-10-14. Site : https://prepmyjob.com/
 
 ## Présentation
 PrepMyJob aide à préparer un entretien d'embauche à partir de vos propres documents (CV et offre). L'analyse d'adéquation est gratuite ; la préparation complète demande un pass de 30 jours à 14 € (paiement unique, sans abonnement). Aucun compte n'est demandé.
@@ -14,7 +14,7 @@ L'analyse d'adéquation entre votre CV et l'offre est gratuite et sans compte, d
 Non. Vous déposez vos documents et vous obtenez votre préparation directement.
 
 **Quels documents puis-je déposer ?**
-Votre CV et l'offre d'emploi au format PDF, TXT ou image (PNG, JPG, WEBP), ou en collant le texte. Les fichiers Word (.docx) ne sont pas acceptés : enregistrez-les d'abord en PDF. Une lettre de motivation existante est facultative.
+Votre CV et l'offre d'emploi au format PDF, TXT, photo ou capture d'écran (PNG, JPG, WEBP), ou en collant le texte. Pour l'offre, vous pouvez aussi coller son lien : la lecture fonctionne avec la plupart des sites d'emploi (France Travail, Welcome to the Jungle, Meteojob…) ; Indeed bloque la lecture automatique, faites alors une capture d'écran. Les fichiers Word (.docx) ne sont pas acceptés : enregistrez-les d'abord en PDF. Une lettre de motivation existante est facultative.
 
 **Puis-je envoyer une photo de mon CV ?**
 Oui, le texte est alors lu à partir de l'image. Vérifiez qu'elle est nette et bien cadrée ; sinon, collez le texte.
@@ -55,7 +55,7 @@ Le texte est transmis de façon sécurisée (HTTPS) à Anthropic (l'éditeur de 
 PrepMyJob n'utilise pas vos documents pour entraîner un modèle. Anthropic indique ne pas utiliser les données transmises via son API pour entraîner ses modèles (voir la politique de confidentialité).
 
 **Comment effacer mes données ?**
-Effacez les données du site dans les paramètres de votre navigateur : elles sont stockées sur votre appareil, il n'y a rien à supprimer côté serveur.
+Effacez les données du site dans les paramètres de votre navigateur : votre CV et votre préparation sont stockés sur votre appareil et ne sont pas conservés sur nos serveurs. Pour les données liées à un pass ou à une rétractation, écrivez à contact@prepmyjob.com.
 
 ### Conseils d'entretien
 **Comment répondre à « Parlez-moi de vous » ?**

@@ -18,6 +18,9 @@
 <meta name="twitter:title" content="PrepMyJob — Préparez votre entretien avec l'IA">
 <meta name="twitter:description" content="Questions personnalisées, simulation notée et lettre de motivation à partir de votre CV et de l'offre.">
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PrepMyJob">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -222,6 +225,17 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .toast.show{transform:translateX(-50%);opacity:1}
 .note{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:13px 15px;margin-top:10px;border-left:3px solid var(--orange);line-height:1.55}
 
+/* LIEN D'ANNONCE & INSTALLATION */
+.link-row label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.link-in{display:flex;gap:8px}
+.link-in input{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 12px;font-family:inherit;font-size:16px}
+.link-msg{font-size:13px;color:var(--orange);margin-top:8px;line-height:1.5}
+.install-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#161208;border:none;border-radius:10px;padding:8px 11px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0}
+.install-btn[hidden]{display:none}
+.inst-steps{margin:14px 0 6px 20px;font-size:15px;line-height:1.6}
+.inst-steps li{margin-bottom:10px}
+@media(max-width:420px){.score-ring .lbl{display:none}.head-right{gap:10px}}
+
 /* PAYWALL */
 .pass-ok{border-left-color:var(--green)}
 .pass-ok a{color:var(--accent)}
@@ -265,6 +279,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
       <div class="wm">PrepMyJob<small data-i18n="brand.tagline">Préparation d'entretien sur-mesure</small></div>
     </div>
     <div class="head-right">
+      <button class="install-btn" id="installBtn" hidden onclick="installer()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span data-i18n="install.btn">Installer</span></button>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" data-i18n-aria="theme.toggle" aria-label="Changer de thème"></button>
       <div class="score-ring">
         <div class="ring">
@@ -314,6 +329,14 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
           <div class="h" data-i18n="drop.offre.h">PDF, image ou texte</div>
           <input type="file" accept=".pdf,.txt,.png,.jpg,.jpeg,.webp" multiple data-doc="offre">
         </label>
+        <div class="full link-row">
+          <label for="offreLien" data-i18n="setup.linkLabel">Annonce en ligne ? Collez son lien :</label>
+          <div class="link-in">
+            <input type="url" id="offreLien" inputmode="url" autocomplete="off" data-i18n-ph="setup.linkPh" placeholder="https://… (France Travail, Welcome to the Jungle…)">
+            <button class="btn sm" type="button" id="btnLien" onclick="lireLien()" data-i18n="setup.linkBtn">Lire</button>
+          </div>
+          <p class="link-msg" id="lienMsg" hidden></p>
+        </div>
         <label class="drop full" id="drop-lm">
           <span class="req" data-i18n="drop.optional">Optionnel</span>
           <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
@@ -457,6 +480,18 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
   </div>
 </div>
 
+<div class="sheet-bg" id="installSheet" hidden onclick="if(event.target===this)this.hidden=true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="instTitle">
+    <button class="sheet-x" onclick="$('#installSheet').hidden=true" data-i18n-aria="pay.close" aria-label="Fermer">×</button>
+    <h2 id="instTitle" data-i18n="install.title">Installer PrepMyJob sur votre iPhone</h2>
+    <ol class="inst-steps">
+      <li data-i18n-html="install.s1"></li>
+      <li data-i18n-html="install.s2"></li>
+    </ol>
+    <p class="pw-small" data-i18n="install.s3"></p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -481,13 +516,20 @@ const I18N={
     'setup.title':"Votre profil",
     'setup.sub':"Ajoutez votre CV et l'offre d'emploi. Votre CV et l'offre ne sont pas conservés sur nos serveurs.",
     'drop.req':"Requis",'drop.optional':"Optionnel",
-    'drop.cv.t':"Votre CV",'drop.cv.h':"PDF, image ou texte",
-    'drop.offre.t':"L'offre d'emploi",'drop.offre.h':"PDF, image ou texte",
+    'drop.cv.t':"Votre CV",'drop.cv.h':"PDF, photo ou capture d'écran",
+    'drop.offre.t':"L'offre d'emploi",'drop.offre.h':"PDF, photo ou capture d'écran",
+    'setup.linkLabel':"Annonce en ligne ? Collez son lien :",'setup.linkPh':"https://… (France Travail, Welcome to the Jungle…)",'setup.linkBtn':"Lire",
+    'link.reading':"Lecture de l'annonce…",'link.ok':"Annonce lue : {0}",'link.bad':"Collez un lien complet, qui commence par https://",
+    'file.readingImage':"Lecture de la capture d'écran…",
+    'install.btn':"Installer",'install.title':"Installer PrepMyJob sur votre iPhone",
+    'install.s1':"Dans Safari, touchez le bouton <b>Partager</b> (le carré avec une flèche vers le haut). Selon votre version, il se trouve dans le menu « … ».",
+    'install.s2':"Choisissez <b>Sur l'écran d'accueil</b>, puis touchez <b>Ajouter</b>.",
+    'install.s3':"PrepMyJob s'ouvre ensuite comme une application, depuis son icône.",'install.done':"PrepMyJob est installé",
     'drop.lm.t':"Lettre de motivation existante",'drop.lm.h':"Si vous en avez déjà une",
     'setup.noLm':"💡 Pas de lettre de motivation ? Pas de panique — nous en rédigeons une pour vous, adaptée à votre CV et à l'offre.",
-    'setup.pasteToggle':"Pas de PDF ? Coller le texte à la place",
-    'setup.cvText':"CV (texte)",'setup.offreText':"Offre d'emploi (texte)",
-    'setup.cvPlaceholder':"Collez votre CV ici...",'setup.offrePlaceholder':"Collez l'offre d'emploi ici...",
+    'setup.pasteToggle':"Pas de fichier ? Collez le texte ou une capture d'écran",
+    'setup.cvText':"CV (texte ou capture d'écran)",'setup.offreText':"Offre d'emploi (texte, capture d'écran ou lien)",
+    'setup.cvPlaceholder':"Collez votre CV ici (texte ou capture d'écran)…",'setup.offrePlaceholder':"Collez l'offre ici : texte, capture d'écran ou lien…",
     'setup.analyse':"Analyser mon profil",
     'prepa.emptyTitle':"Aucune préparation générée",
     'prepa.emptyText':"Analysez d'abord votre profil dans l'onglet Profil, puis générez vos questions personnalisées.",
@@ -728,21 +770,78 @@ document.querySelectorAll('.drop input').forEach(inp=>{
       }
       const txt=parts.join('\n\n').trim();
       if(!txt)throw new Error('vide');
-      S[doc]=txt;save();stop();
-      drop.classList.add('ok');
-      tEl.textContent=files.length>1?(files.length+' fichiers lus'):files[0].name.slice(0,26);
-      drop.querySelector('.h').textContent=tf('file.charsRead',txt.length);
-      checkReady();
+      stop();setDoc(doc,txt,files.length>1?(files.length+' fichiers lus'):files[0].name.slice(0,26));
     }catch(err){stop();tEl.textContent=t('file.readError');toast(t('toast.fileError'))}
   };
 });
+/* Document lu (fichier, capture collée ou lien) : enregistré et affiché comme « chargé ». */
+function setDoc(doc,txt,label){
+  S[doc]=txt;save();
+  const drop=$('#drop-'+doc);
+  if(drop){drop.classList.add('ok');drop.querySelector('.t').textContent=label;drop.querySelector('.h').textContent=tf('file.charsRead',txt.length)}
+  const ta=$('#ta-'+doc);if(ta)ta.value=txt;
+  checkReady();
+}
+/* Photos et captures réduites à 1 600 px avant l'envoi : plus rapide, et sous les limites de taille. */
+async function shrinkImage(file){
+  try{
+    const bmp=await createImageBitmap(file);
+    const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    if(k===1&&file.size<1500000)return file;
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(res=>c.toBlob(b=>res(b||file),'image/jpeg',0.85));
+  }catch(e){return file}
+}
 async function extractImage(file){
-  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(file)});
-  return await callAI('ocr',{image:{media_type:file.type,data:b64}});
+  const img=await shrinkImage(file);
+  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(img)});
+  return await callAI('ocr',{image:{media_type:img.type||'image/jpeg',data:b64}});
 }
 function togglePaste(){const z=$('#pasteZone');z.style.display=z.style.display==='none'?'block':'none'}
 $('#ta-cv').oninput=e=>{S.cv=e.target.value;save();checkReady()};
-$('#ta-offre').oninput=e=>{S.offre=e.target.value;save();checkReady()};
+$('#ta-offre').oninput=e=>{
+  const v=e.target.value.trim();
+  if(e.inputType==='insertFromPaste'&&/^https?:\/\/\S+$/i.test(v)){$('#offreLien').value=v;lireLien();return} // un lien collé dans la zone de texte
+  S.offre=e.target.value;save();checkReady();
+};
+// Capture d'écran collée directement dans une zone de texte (Ctrl+V, ou « Coller » sur téléphone)
+['cv','offre'].forEach(doc=>{$('#ta-'+doc).addEventListener('paste',async e=>{
+  const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>x.type&&x.type.startsWith('image/'));
+  if(!f)return;
+  e.preventDefault();toast(t('file.readingImage'));
+  try{const txt=(await extractImage(f)).trim();if(!txt)throw new Error('vide');setDoc(doc,txt,t('file.loaded'))}
+  catch(err){toast(t('toast.fileError'))}
+})});
+/* Lien d'une annonce : le serveur lit la page et renvoie le texte de l'offre. */
+async function lireLien(){
+  const url=$('#offreLien').value.trim(),msg=$('#lienMsg'),b=$('#btnLien');
+  msg.hidden=true;
+  if(!/^https?:\/\/\S+\.\S+/i.test(url)){msg.textContent=t('link.bad');msg.hidden=false;return}
+  b.disabled=true;
+  const drop=$('#drop-offre'),tEl=drop.querySelector('.t'),avant=tEl.textContent;const stop=rotate(m=>{tEl.textContent=m},[t('link.reading')]);
+  try{
+    const {r,d}=await postJSON('/api/offre-lien',{url});
+    if(!r.ok||!d.texte)throw new Error((d.error&&d.error.message)||t('toast.fileError'));
+    stop();setDoc('offre',d.texte,(d.titre||t('file.loaded')).slice(0,40));
+    toast(tf('link.ok',(d.titre||'').slice(0,50)));
+  }catch(err){stop();tEl.textContent=avant;msg.textContent=err.message;msg.hidden=false}
+  b.disabled=false;
+}
+
+/* ---------- INSTALLER L'APPLI ---------- */
+let INSTALL=null;
+const STANDALONE=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+const UA_=navigator.userAgent;
+const IN_APP=/TikTok|musical_ly|Bytedance|FBAN|FBAV|Instagram|Snapchat|LinkedInApp/i.test(UA_); // navigateurs intégrés : installation impossible
+const IOS_SAFARI=(/iPhone|iPad|iPod/.test(UA_)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))&&/Safari/.test(UA_)&&!/CriOS|FxiOS|EdgiOS/.test(UA_);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL=e;if(!STANDALONE)$('#installBtn').hidden=false});
+window.addEventListener('appinstalled',()=>{INSTALL=null;$('#installBtn').hidden=true;toast(t('install.done'))});
+if(IOS_SAFARI&&!STANDALONE&&!IN_APP)$('#installBtn').hidden=false;
+async function installer(){
+  if(INSTALL){INSTALL.prompt();const c=await INSTALL.userChoice.catch(()=>({}));if(c&&c.outcome==='accepted')$('#installBtn').hidden=true;INSTALL=null;return}
+  $('#installSheet').hidden=false;
+}
 function checkReady(){$('#btnAnalyse').disabled=!(S.cv.length>30&&S.offre.length>30)}
 
 /* ---------- ANALYSE (GAP) ---------- */
