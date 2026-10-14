@@ -3,7 +3,7 @@
 > PrepMyJob est un coach d'entretien d'embauche par intelligence artificielle, en français. À partir d'un CV et d'une offre d'emploi, il génère une analyse d'adéquation, 14 questions d'entretien probables avec des réponses types, une simulation écrite notée sur 10, une lettre de motivation et une fiche à imprimer. Analyse gratuite et sans compte ; préparation complète avec un pass de 30 jours à 14 € (paiement unique, sans abonnement). Édité par Cyril CRETIN, entrepreneur individuel (France).
 
 ## Ce que fait l'outil (faits vérifiés)
-- Documents acceptés : PDF, TXT, photos et captures d'écran (PNG, JPG, WEBP), texte collé, ou lien de l'annonce (lu pour la plupart des sites d'emploi ; Indeed bloque la lecture automatique). Les fichiers Word ne sont pas acceptés.
+- Documents acceptés : PDF, TXT, photos et captures d'écran (PNG, JPG, WEBP), texte collé, ou lien de l'annonce (lu notamment pour Welcome to the Jungle, HelloWork et Meteojob ; Indeed et France Travail ne laissent pas lire l'annonce complète, une capture d'écran est alors proposée). Les fichiers Word ne sont pas acceptés.
 - Analyse CV/offre : score d'adéquation sur 100, atouts, points à préparer, conseils.
 - 14 questions probables (présentation, motivation, compétences, comportemental, mise en situation, pièges, clôture) avec réponses types à la première personne.
 - Simulation écrite : 8 questions parmi les 14, note sur 10 par réponse, ce qui marche, ce qui manque, version améliorée, bilan moyen. Option « recruteur exigeant ».

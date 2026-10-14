@@ -14,7 +14,7 @@ L'analyse d'adéquation entre votre CV et l'offre est gratuite et sans compte, d
 Non. Vous déposez vos documents et vous obtenez votre préparation directement.
 
 **Quels documents puis-je déposer ?**
-Votre CV et l'offre d'emploi au format PDF, TXT, photo ou capture d'écran (PNG, JPG, WEBP), ou en collant le texte. Pour l'offre, vous pouvez aussi coller son lien : la lecture fonctionne avec la plupart des sites d'emploi (France Travail, Welcome to the Jungle, Meteojob…) ; Indeed bloque la lecture automatique, faites alors une capture d'écran. Les fichiers Word (.docx) ne sont pas acceptés : enregistrez-les d'abord en PDF. Une lettre de motivation existante est facultative.
+Votre CV et l'offre d'emploi au format PDF, TXT, photo ou capture d'écran (PNG, JPG, WEBP), ou en collant le texte. Pour l'offre, vous pouvez aussi coller son lien : la lecture fonctionne notamment avec Welcome to the Jungle, HelloWork et Meteojob ; certains sites, comme Indeed ou France Travail, ne laissent pas lire l'annonce complète : faites alors une capture d'écran. Les fichiers Word (.docx) ne sont pas acceptés : enregistrez-les d'abord en PDF. Une lettre de motivation existante est facultative.
 
 **Puis-je envoyer une photo de mon CV ?**
 Oui, le texte est alors lu à partir de l'image. Vérifiez qu'elle est nette et bien cadrée ; sinon, collez le texte.

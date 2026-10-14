@@ -425,7 +425,7 @@ function annonceStructuree(html) {
   }
   return null;
 }
-const MSG_LIEN_BLOQUE = "Ce site ne laisse pas lire ses annonces automatiquement (c'est le cas d'Indeed). Faites une capture d'écran de l'annonce et déposez-la dans « L'offre d'emploi ».";
+const MSG_LIEN_BLOQUE = "Ce site ne laisse pas lire l'annonce complète (c'est le cas d'Indeed ou de France Travail). Faites une capture d'écran de l'annonce et déposez-la dans « L'offre d'emploi ».";
 
 async function handleLien(req, res, d) {
   const lien = typeof d.url === 'string' ? d.url.trim() : '';
@@ -447,10 +447,12 @@ async function handleLien(req, res, d) {
     let t = '';
     if (KEY && brut.length > 200) {
       try {
-        t = (await claude("Tu reçois le texte brut d'une page web. Si elle contient une offre d'emploi, recopie uniquement le texte de l'offre (intitulé, entreprise, lieu, contrat, missions, profil, conditions), fidèlement, sans rien inventer ni résumer. S'il n'y a pas d'offre d'emploi, réponds exactement : AUCUNE_OFFRE", brut, 2500)).trim();
+        t = (await claude("Tu reçois le texte brut d'une page web. Si elle contient une offre d'emploi AVEC sa description (missions ou profil recherché), recopie uniquement le texte de l'offre (intitulé, entreprise, lieu, contrat, missions, profil, conditions), fidèlement, sans rien inventer ni résumer, en texte brut sans aucune mise en forme Markdown. Si la page ne contient pas d'offre, ou seulement l'intitulé et le lieu sans les missions ni le profil, réponds exactement : AUCUNE_OFFRE", brut, 2500)).trim()
+          .replace(/\*\*([^*\n]+)\*\*/g, '$1').replace(/__([^_\n]+)__/g, '$1').replace(/^#{1,6}\s+/gm, '').replace(/^\s*-{3,}\s*$/gm, '').replace(/\*\*/g, '').trim();
       } catch (e) { t = ''; }
     }
-    if (!t || t.includes('AUCUNE_OFFRE') || t.length < 150) {
+    // Une annonce réduite à l'intitulé et au lieu donnerait une mauvaise analyse : on propose la capture d'écran
+    if (!t || t.includes('AUCUNE_OFFRE') || t.length < 400) {
       console.log(`${new Date().toISOString()} lien site=${hote} resultat=aucune_offre`);
       return fail(res, 422, MSG_LIEN_BLOQUE, 'lien_bloque');
     }
