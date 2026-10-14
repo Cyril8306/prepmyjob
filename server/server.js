@@ -397,6 +397,9 @@ async function handleCheckout(req, res, d) {
     'metadata[produit]': 'pass30', 'metadata[cgv]': CGV_VERSION,
     'metadata[consentement_le]': now.toISOString(), 'metadata[consentement]': CONSENT_TEXT,
     allow_promotion_codes: 'true',
+    // « Managed Payments » (activé par défaut sur le compte réel) ferait de Stripe le vendeur légal (+3,5 %, TVA facturée) :
+    // le vendeur reste Cyril CRETIN, en franchise de TVA, comme l'indiquent les CGV.
+    'managed_payments[enabled]': 'false',
     success_url: SITE_URL + '/app?pass={CHECKOUT_SESSION_ID}',
     cancel_url: SITE_URL + '/app?paiement=annule',
   });
