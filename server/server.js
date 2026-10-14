@@ -600,7 +600,9 @@ async function handleRetract(req, res, d) {
       try { await stripe('POST', 'refunds', { payment_intent: p.pi, amount: String(amount), reason: 'requested_by_customer' }, 'retractation-' + p.id); refunded = true; }
       catch (e) { console.log(`${new Date().toISOString()} remboursement erreur=${e.message}`); }
     }
-    issue = amount === 0
+    issue = p.montant === 0
+      ? "Votre pass avait été obtenu sans paiement (code promotionnel) : il n'y a rien à rembourser. Votre pass est désactivé."
+      : amount === 0
       ? `Les ${PASS_OFFRES} offres d'emploi du pass ayant été préparées, le montant payé correspond au service fourni : aucun remboursement n'est dû (CGV, article 7). Votre pass est désactivé.`
       : `Remboursement : ${euros(amount)} sur le moyen de paiement utilisé (${p.offres.length} offre(s) préparée(s) sur ${PASS_OFFRES}, CGV article 7). `
         + (refunded ? 'Il a été lancé aujourd’hui ; selon votre banque, il apparaît sous 5 à 10 jours.' : 'Il sera effectué dans les 14 jours au plus tard.') + ' Votre pass est désactivé.';
