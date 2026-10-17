@@ -22,3 +22,4 @@ réservées au pass vérifié par le serveur.
 
 Mise à jour des seules pages statiques : `cd /var/www/prepmyjob && git pull`.
 Si `deploy/nginx-prepmyjob.conf` change : `bash deploy/update-nginx.sh` (réapplique nginx + HTTPS, restaure l'ancienne config en cas d'échec).
+Redirection de prepmyjob.fr (et www) vers https://prepmyjob.com, une seule fois, après avoir fait pointer le DNS de prepmyjob.fr vers ce serveur : `bash deploy/redirect-fr.sh` (nginx + certificat HTTPS, 301 avec chemin conservé).
