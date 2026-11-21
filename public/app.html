@@ -722,7 +722,7 @@ async function handleReturn(){
   savePass(d);toast(tf('pay.active',fmtDate(d.expires)));afterPass();
 }
 // Pass tout juste obtenu : on enchaîne sur ce que la personne voulait faire
-function afterPass(){if(S.analysis&&!S.questions.length){go('setup');genQuestions()}}
+function afterPass(){if(S.analysis)renderAnalyse();if(S.analysis&&!S.questions.length){go('setup');genQuestions()}}
 async function refreshPass(){
   if(!PASS)return;
   const {r,d}=await postJSON('/api/pass/status',{},{'X-Pass':PASS.pass}).catch(()=>({r:{ok:true,status:0},d:{}}));
