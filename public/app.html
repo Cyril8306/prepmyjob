@@ -258,6 +258,21 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .pw-check input{margin-top:2px;width:18px;height:18px;flex-shrink:0;accent-color:var(--accent)}
 .pw-check a{color:var(--accent)}
 .pw-small{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5}
+.piege{margin-top:20px;border:1px solid rgba(231,192,101,.35);background:rgba(231,192,101,.07);border-radius:13px;padding:14px 15px}
+.piege-k{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.piege-q{font-size:16px;font-weight:600;line-height:1.5;margin:0 0 8px;color:var(--text)}
+.piege-w{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
+.locked{margin-top:10px;background:var(--surface);border:1px solid var(--border-soft);border-radius:11px;padding:11px 12px}
+.locked .blur{filter:blur(4px);user-select:none;color:var(--muted);font-size:13px;margin:0 0 8px;line-height:1.5}
+.locked .lk{font-size:13px;color:var(--text);margin:0}
+.ecart{border:1px solid var(--border-soft);border-radius:12px;padding:13px 14px;margin-bottom:10px;background:var(--surface)}
+.ecart-k{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:5px}
+.ecart-t{font-weight:600;font-size:15px;line-height:1.45;margin:0 0 8px}
+.ecart-h{font-size:13px;font-weight:600;margin:8px 0 2px}
+.ecart-p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
+.ecart-l{margin:2px 0 0 18px;font-size:13.5px;color:var(--muted);line-height:1.55}
+.ecart-phrase{margin-top:10px;background:rgba(76,186,132,.1);border:1px solid rgba(76,186,132,.25);border-radius:10px;padding:9px 11px;font-size:13.5px;line-height:1.55;color:var(--text)}
+.ecart-phrase span{display:block;font-size:11.5px;color:var(--green);font-weight:600;margin-bottom:3px}
 .pw-promo{font-size:13px;color:var(--green);background:rgba(76,186,132,.1);border:1px solid rgba(76,186,132,.25);border-radius:10px;padding:8px 11px;margin-top:10px;line-height:1.45}
 .pw-recover{margin-top:16px;font-size:13px;color:var(--muted)}
 .pw-recover summary{cursor:pointer;color:var(--accent);font-weight:500}
@@ -467,8 +482,8 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
     <ul class="pill-list axe">
       <li data-i18n="pay.f1">Les 14 questions probables et leurs réponses types, sur votre CV</li>
       <li data-i18n="pay.f2">La simulation notée /10, avec une version améliorée de chaque réponse</li>
-      <li data-i18n="pay.f3">La lettre de motivation et le dossier à imprimer</li>
-      <li data-i18n="pay.f4">Pendant 30 jours, pour 5 offres d'emploi au maximum</li>
+      <li data-i18n="pay.f3">Le plan pour combler vos écarts, la lettre de motivation et le dossier à imprimer</li>
+      <li data-i18n="pay.f4">Pendant 30 jours, pour 15 offres d'emploi au maximum</li>
     </ul>
     <label class="pw-label" for="pwEmail" data-i18n="pay.email">Votre e-mail (pour le reçu et pour retrouver votre pass)</label>
     <input type="email" id="pwEmail" autocomplete="email" inputmode="email" placeholder="vous@exemple.fr">
@@ -591,8 +606,17 @@ const I18N={
     'pay.priceNote':"paiement unique · sans abonnement",
     'pay.f1':"Les 14 questions probables et leurs réponses types, sur votre CV",
     'pay.f2':"La simulation notée /10, avec une version améliorée de chaque réponse",
-    'pay.f3':"La lettre de motivation et le dossier à imprimer",
-    'pay.f4':"Pendant 30 jours, pour 5 offres d'emploi au maximum",
+    'pay.f3':"Le plan pour combler vos écarts, la lettre de motivation et le dossier à imprimer",
+    'pay.f4':"Pendant 30 jours, pour 15 offres d'emploi au maximum",
+    'piege.kicker':"La question qui risque de vous piéger",'piege.why':"Pourquoi on vous la posera :",
+    'piege.blur':"Dans mon poste actuel, je m'appuie déjà sur une expérience proche, et je me forme pour aller plus loin sur ce point précis.",
+    'piege.locked':"Réponse type construite sur votre parcours",'piege.cta':"Voir la réponse et tout le pass · 14 €",
+    'piege.withPass':"Sa réponse type arrive avec votre plan pour combler les écarts, juste en dessous.",'piege.answer':"Réponse type",
+    'ecarts.title':"Votre plan pour combler les écarts",
+    'ecarts.teaser':"Pour chaque écart entre votre CV et l'offre : comment le présenter honnêtement, quoi préparer, la phrase à dire.",
+    'ecarts.blur':"Écart 1 · Présentez votre expérience la plus proche, préparez un exemple chiffré, puis…",
+    'ecarts.locked':"Inclus dans le pass · 14 €",'ecarts.btn':"Créer mon plan pour combler les écarts",
+    'ecarts.n':"Écart {0} sur {1}",'ecarts.presenter':"Comment le présenter",'ecarts.preparer':"À préparer d'ici l'entretien",'ecarts.phrase':"La phrase à dire",
     'pay.email':"Votre e-mail (pour le reçu et pour retrouver votre pass)",
     'pay.consent':"J'accepte les <a href=\"/cgv\" target=\"_blank\">conditions générales de vente</a> et je demande l'accès immédiat au pass. Je reconnais qu'en cas de rétractation dans les 14 jours, seule la part non utilisée me sera remboursée.",
     'pay.btn':"Payer 14 € avec Stripe",'pay.redirect':"Ouverture du paiement…",
@@ -625,10 +649,10 @@ function applyI18n(){
 }
 
 /* ---------- STATE ---------- */
-const S={cv:'',offre:'',lm:'',lang:'fr',analysis:null,questions:[],ratings:{},letter:'',
+const S={cv:'',offre:'',lm:'',lang:'fr',analysis:null,questions:[],ratings:{},letter:'',ecarts:null,
   fc:{pos:0,revealed:false,filter:'all'},
   sim:{hard:false,running:false,idx:0,qs:[],answer:'',fb:null,timer:null,left:120}};
-function save(){try{localStorage.setItem(LS,JSON.stringify({cv:S.cv,offre:S.offre,lm:S.lm,lang:S.lang,analysis:S.analysis,questions:S.questions,ratings:S.ratings,letter:S.letter}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({cv:S.cv,offre:S.offre,lm:S.lm,lang:S.lang,analysis:S.analysis,questions:S.questions,ratings:S.ratings,letter:S.letter,ecarts:S.ecarts}))}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d)Object.assign(S,d)}catch(e){}}
 
 /* ---------- HELPERS ---------- */
@@ -725,15 +749,16 @@ function parseJSON(txt){
   try{return JSON.parse(txt.slice(start,end+1))}catch(e){throw new Error(t('err.illegible'))}
 }
 /* Liste JSON tolérante : si la réponse est coupée, on garde les objets complets au lieu de tout perdre. */
-function parseList(txt){
-  try{const v=parseJSON(txt);if(Array.isArray(v))return v.filter(q=>q&&q.q);if(v&&Array.isArray(v.questions))return v.questions.filter(q=>q&&q.q)}catch(e){}
+function parseList(txt,key){
+  key=key||'q';
+  try{const v=parseJSON(txt);if(Array.isArray(v))return v.filter(q=>q&&q[key]);if(v&&Array.isArray(v.questions))return v.questions.filter(q=>q&&q[key])}catch(e){}
   const out=[];let depth=0,inStr=false,esc=false,start=-1;
   for(let i=Math.max(0,txt.indexOf('['));i<txt.length;i++){
     const ch=txt[i];
     if(inStr){if(esc)esc=false;else if(ch==='\\')esc=true;else if(ch==='"')inStr=false;continue}
     if(ch==='"')inStr=true;
     else if(ch==='{'){if(depth===0)start=i;depth++}
-    else if(ch==='}'&&depth>0){depth--;if(depth===0){try{const o=JSON.parse(txt.slice(start,i+1));if(o&&o.q)out.push(o)}catch(e){}}}
+    else if(ch==='}'&&depth>0){depth--;if(depth===0){try{const o=JSON.parse(txt.slice(start,i+1));if(o&&o[key])out.push(o)}catch(e){}}}
   }
   if(!out.length)throw new Error(t('err.illegible'));
   return out;
@@ -754,6 +779,7 @@ const SEQ={
   analyse:["Lecture de votre CV…","Analyse de l'offre d'emploi…","Croisement compétences / poste…","Calcul de votre adéquation…","Identification de vos atouts…","Repérage des points à préparer…"],
   questions:["Étude de votre parcours…","Analyse des attentes du recruteur…","Anticipation des questions probables…","Rédaction de réponses sur-mesure…","Personnalisation sur votre profil…"],
   eval:["Lecture de votre réponse…","Comparaison aux attentes du poste…","Évaluation de la pertinence…","Préparation d'un feedback précis…"],
+  ecarts:["Comparaison de votre CV et de l'offre…","Repérage des écarts…","Recherche d'appuis dans votre parcours…","Rédaction de votre plan…"],
   letter:["Analyse de votre profil…","Croisement CV + offre…","Choix des arguments clés…","Rédaction de votre lettre…","Mise en forme finale…"]
 };
 function rotate(setFn,msgs){let i=0;setFn(msgs[0]);const id=setInterval(()=>{i=(i+1)%msgs.length;setFn(msgs[i])},1400);return ()=>clearInterval(id)}
@@ -855,7 +881,7 @@ async function runAnalyse(){
   try{
     const r=await callAI('analyse',{cv:S.cv,offre:S.offre});
     const a=parseJSON(r);
-    S.analysis=a;S.lang=a.langue||'fr';save();
+    S.analysis=a;S.lang=a.langue||'fr';S.ecarts=null;save();
     renderAnalyse();
   }catch(e){out.innerHTML='<div class="card"><div class="note">'+e.message+'</div><button class="btn" style="margin-top:10px" onclick="runAnalyse()">'+t('err.retry')+'</button></div>'}
 }
@@ -879,9 +905,50 @@ function renderAnalyse(){
     <ul class="pill-list risk">${(a.risques||[]).map(f=>'<li>'+f+'</li>').join('')}</ul>
     <h3>${t('analyse.axes')}</h3>
     <ul class="pill-list axe">${(a.axes||[]).map(f=>'<li>'+f+'</li>').join('')}</ul>
+    ${piegeHTML(a)}
+    <div id="ecartsBox">${ecartsBlockHTML()}</div>
     <button class="btn full lg" style="margin-top:22px" onclick="genQuestions()">${t('analyse.genQ')}</button>
     ${PASS?'':`<p class="pw-hint">${t('pay.hint')}</p>`}
   </div>`;
+}
+
+/* ---------- QUESTION PIÈGE + PLAN DES ÉCARTS ---------- */
+/* La question piège vient de l'analyse gratuite. Sa réponse type et le plan ne sont générés qu'avec le pass (étape « ecarts »). */
+const escH=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function piegeHTML(a){
+  if(!a||!a.piege||!a.piege.q)return '';
+  const rep=S.ecarts&&S.ecarts.piegeReponse;
+  return `<div class="piege"><div class="piege-k">${t('piege.kicker')}</div>
+    <p class="piege-q">« ${escH(a.piege.q)} »</p>
+    ${a.piege.pourquoi?`<p class="piege-w"><b>${t('piege.why')}</b> ${escH(a.piege.pourquoi)}</p>`:''}
+    ${rep?`<div class="ecart-phrase"><span>${t('piege.answer')}</span>${escH(rep)}</div>`
+      :PASS?`<p class="piege-w">${t('piege.withPass')}</p>`
+      :`<div class="locked"><p class="blur">${t('piege.blur')}</p><p class="lk"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> ${t('piege.locked')}</p></div><button class="btn full" style="margin-top:12px" onclick="openPaywall()">${t('piege.cta')}</button>`}
+  </div>`;
+}
+function ecartsBlockHTML(){
+  if(!S.analysis)return '';
+  const head=`<h3>${t('ecarts.title')}</h3>`;
+  if(!PASS)return head+`<div class="locked"><p class="sub" style="margin:0 0 8px">${t('ecarts.teaser')}</p><p class="blur">${t('ecarts.blur')}</p><p class="lk"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> ${t('ecarts.locked')}</p></div>`;
+  if(S.ecarts&&S.ecarts.list&&S.ecarts.list.length)return head+S.ecarts.list.map((e,i)=>`<div class="ecart"><div class="ecart-k">${tf('ecarts.n',i+1,S.ecarts.list.length)}${e.importance?' · '+escH(e.importance):''}</div>
+    <p class="ecart-t">${escH(e.ecart)}</p>
+    ${e.presenter?`<p class="ecart-h">${t('ecarts.presenter')}</p><p class="ecart-p">${escH(e.presenter)}</p>`:''}
+    ${Array.isArray(e.preparer)&&e.preparer.length?`<p class="ecart-h">${t('ecarts.preparer')}</p><ul class="ecart-l">${e.preparer.map(x=>'<li>'+escH(x)+'</li>').join('')}</ul>`:''}
+    ${e.phrase?`<div class="ecart-phrase"><span>${t('ecarts.phrase')}</span>« ${escH(e.phrase)} »</div>`:''}</div>`).join('');
+  return head+`<p class="sub" style="margin:0 0 10px">${t('ecarts.teaser')}</p><button class="btn full" id="btnEcarts" onclick="genEcarts()">${t('ecarts.btn')}</button>`;
+}
+async function genEcarts(){
+  if(!(S.cv&&S.offre)){toast(t('toast.needCvOffre'));go('setup');return}
+  if(!PASS){openPaywall();return}
+  const box=$('#ecartsBox');if(box)box.innerHTML='<h3>'+t('ecarts.title')+'</h3>'+thinking(SEQ.ecarts);
+  try{
+    const piege=S.analysis&&S.analysis.piege&&S.analysis.piege.q?String(S.analysis.piege.q).slice(0,600):'';
+    const r=await callAI('ecarts',{cv:S.cv,offre:S.offre,piege});
+    let v=null;try{v=parseJSON(r)}catch(e){}
+    const list=v&&Array.isArray(v.ecarts)?v.ecarts.filter(e=>e&&e.ecart):parseList(r,'ecart');
+    if(!list.length)throw new Error(t('err.illegible'));
+    S.ecarts={list,piegeReponse:v&&typeof v.piege_reponse==='string'?v.piege_reponse.trim():''};save();stopThinking();renderAnalyse();
+  }catch(e){stopThinking();if(box)box.innerHTML='<h3>'+t('ecarts.title')+'</h3><div class="note">'+escH(e.message)+'</div><button class="btn" style="margin-top:10px" onclick="genEcarts()">'+t('err.retry')+'</button>'}
 }
 
 /* ---------- GENERATE QUESTIONS ---------- */
@@ -1063,6 +1130,8 @@ function buildExport(){
     ${a?`<h3>${t('export.adequationLabel')} ${a.score}/100 — ${a.poste||''}</h3><p style="color:var(--muted);margin-bottom:10px;line-height:1.6">${a.resume||''}</p>
     <p style="line-height:1.6"><b>${t('export.atouts')}</b> ${(a.forces||[]).join(' · ')}</p>
     <p style="line-height:1.6;margin-top:6px"><b>${t('export.aPreparer')}</b> ${(a.risques||[]).join(' · ')}</p>`:''}
+    ${a&&a.piege&&a.piege.q?`<h3>${t('piege.kicker')}</h3><p style="line-height:1.6"><b>« ${escH(a.piege.q)} »</b></p>${S.ecarts&&S.ecarts.piegeReponse?`<p style="line-height:1.7;margin-top:6px">${escH(S.ecarts.piegeReponse)}</p>`:''}`:''}
+    ${S.ecarts&&S.ecarts.list&&S.ecarts.list.length?`<h3>${t('ecarts.title')}</h3>${S.ecarts.list.map((e,i)=>`<p style="line-height:1.6;margin-top:8px"><b>${i+1}. ${escH(e.ecart)}</b></p>${e.presenter?`<p style="line-height:1.6">${escH(e.presenter)}</p>`:''}${Array.isArray(e.preparer)&&e.preparer.length?`<p style="line-height:1.6;color:var(--muted)">${t('ecarts.preparer')} : ${e.preparer.map(escH).join(' · ')}</p>`:''}${e.phrase?`<p style="line-height:1.6">« ${escH(e.phrase)} »</p>`:''}`).join('')}`:''}
     <h3>${t('export.qTitle')} (${S.questions.length})</h3>
     ${S.questions.map((q,i)=>`<div class="acc ${i<2?'open':''}"><div class="acc-h" onclick="this.parentNode.classList.toggle('open')"><span>${i+1}. ${q.q}</span><span class="ar">▾</span></div><div class="acc-b"><p style="color:var(--text);line-height:1.7">${q.model}</p>${q.tips?'<p style="margin-top:10px"><b style="color:var(--accent)">'+t('export.tip')+'</b> '+q.tips+'</p>':''}</div></div>`).join('')}
     ${S.letter?`<h3>${t('export.letterTitle')}</h3><div class="letter-out">${S.letter}</div>`:''}

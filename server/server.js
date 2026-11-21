@@ -10,7 +10,7 @@
  *  - modèle imposé par le serveur (variable MODEL), max_tokens fixé par étape, tailles plafonnées
  *  - étapes gratuites (analyse, lecture d'image, lecture d'une annonce par son lien) : quota par IP et par jour
  *    + plafond global par jour
- *  - étapes payantes (questions, simulation, lettre) : pass vérifié ici (30 jours, 5 offres, 200 générations)
+ *  - étapes payantes (questions, simulation, lettre, plan des écarts) : pass vérifié ici (30 jours, 15 offres, 200 générations)
  *  - lecture d'annonce par lien : http(s) seulement, ports 80/443, adresses internes refusées au moment
  *    même de la connexion, 4 redirections et 4 Mo au plus, 10 s
  *  - aucun CV ni offre n'est écrit dans les journaux ni sur le disque : un pass ne garde que des empreintes
@@ -56,10 +56,10 @@ const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif
 // Le pass (CGV : public/cgv.html). Le texte de la case doit rester identique à celui de public/app.html.
 const PASS_PRICE_CENTS = 1400;
 const PASS_DAYS = 30;
-const PASS_OFFRES = 5;
+const PASS_OFFRES = 15;
 const PASS_CALLS = 200;
 const RETRACT_DAYS = 14;
-const CGV_VERSION = '2026-10-13';
+const CGV_VERSION = '2026-11-21';
 const CONSENT_TEXT = "J'accepte les conditions générales de vente et je demande l'accès immédiat au pass. Je reconnais qu'en cas de rétractation dans les 14 jours, seule la part non utilisée me sera remboursée.";
 const DAY_MS = 86400000;
 
@@ -97,7 +97,7 @@ function savePasses() {
 const STATS_FILE = path.join(DATA_DIR, 'stats.json');
 const STATS_KEY = crypto.createHmac('sha256', SECRET).update('stats').digest('hex').slice(0, 24);
 const STATS_DAYS = 395; // 13 mois
-const EVENTS = ['visite', 'appli', 'analyse', 'questions', 'simulation', 'lettre', 'paiement_vu', 'paiement_ouvert', 'pass_paye', 'pass_offert'];
+const EVENTS = ['visite', 'appli', 'analyse', 'questions', 'simulation', 'lettre', 'ecarts', 'paiement_vu', 'paiement_ouvert', 'pass_paye', 'pass_offert'];
 const CLIENT_EVENTS = new Set(['visite', 'appli', 'paiement_vu']);
 const stats = Object.assign(Object.create(null), readJson(STATS_FILE, {}));
 let statsDirty = false;
@@ -199,13 +199,13 @@ const Q_LOTS = [
 ];
 const STEPS = {
   analyse: {
-    paid: false, max: 1500,
+    paid: false, max: 1800,
     build(d) {
       const cv = str(d.cv, 60000, 30), offre = str(d.offre, 60000, 30);
       if (!cv || !offre) return null;
       return {
         system: "Tu es un recruteur senior et coach carrière. Analyse l'adéquation entre un CV et une offre d'emploi. Détecte la langue de l'offre et réponds DANS CETTE LANGUE. Réponds UNIQUEMENT en JSON valide, sans texte autour.",
-        content: "OFFRE D'EMPLOI:\n" + offre + "\n\nCV DU CANDIDAT:\n" + cv + "\n\nRéponds en JSON: {\"langue\":\"fr/en/es/de\",\"poste\":\"intitulé du poste visé\",\"score\":nombre 0-100 d'adéquation,\"resume\":\"1 phrase de synthèse\",\"forces\":[\"3-4 atouts concrets du candidat pour CE poste\"],\"risques\":[\"2-3 points faibles ou manques à anticiper en entretien\"],\"axes\":[\"2-3 conseils pour cartonner l'entretien\"]}",
+        content: "OFFRE D'EMPLOI:\n" + offre + "\n\nCV DU CANDIDAT:\n" + cv + "\n\nRéponds en JSON: {\"langue\":\"fr/en/es/de\",\"poste\":\"intitulé du poste visé\",\"score\":nombre 0-100 d'adéquation,\"resume\":\"1 phrase de synthèse\",\"forces\":[\"3-4 atouts concrets du candidat pour CE poste\"],\"risques\":[\"2-3 points faibles ou manques à anticiper en entretien\"],\"axes\":[\"2-3 conseils pour cartonner l'entretien\"],\"piege\":{\"q\":\"LA question la plus difficile que ce recruteur posera à CE candidat, formulée comme le recruteur la dirait, appuyée sur le plus gros écart entre le CV et l'offre\",\"pourquoi\":\"1 phrase : quel élément de l'offre et quel manque du CV déclenchent cette question\"}}. Ne donne PAS de réponse à cette question.",
       };
     },
   },
@@ -239,6 +239,17 @@ const STEPS = {
       return {
         system: "Tu es un recruteur " + (d.hard === true ? "exigeant et critique" : "bienveillant mais honnête") + ". Évalue la réponse d'un candidat en entretien. Réponds dans la langue de la question. UNIQUEMENT du JSON valide.",
         content: "CONTEXTE CV:\n" + cv.slice(0, 1500) + "\n\nQUESTION POSÉE:\n" + q + "\n\nRÉPONSE DU CANDIDAT:\n" + ans + "\n\nÉvalue. JSON: {\"note\":0-10,\"bien\":[\"ce qui marche, 1-3 points\"],\"manque\":[\"ce qui manque ou à améliorer, 1-3 points\"],\"version\":\"une version améliorée de la réponse à la 1ère personne\"}",
+      };
+    },
+  },
+  ecarts: {
+    paid: true, max: 2200, offre: true,
+    build(d) {
+      const cv = str(d.cv, 60000, 30), offre = str(d.offre, 60000, 30), piege = d.piege ? str(d.piege, 600) : '';
+      if (!cv || !offre || piege === null) return null;
+      return {
+        system: "Tu es un coach d'entretien d'embauche exigeant et honnête. Tu aides un candidat à combler, pour l'entretien, les écarts entre son CV et l'offre. Règles absolues : ne conseille JAMAIS de mentir ni d'inventer une expérience, un diplôme ou un chiffre ; appuie-toi uniquement sur ce qui figure dans le CV ; ne cite AUCUN lien, site, formation ou organisme précis. Détecte la langue de l'offre et réponds DANS CETTE LANGUE. Réponds UNIQUEMENT en JSON valide, sans texte autour.",
+        content: "OFFRE:\n" + offre + "\n\nCV:\n" + cv + "\n\nIdentifie les 3 ou 4 écarts les plus importants entre ce que demande l'offre et ce que montre le CV, du plus important au moins important." + (piege ? "\n\nQUESTION PIÈGE QUE LE RECRUTEUR VA POSER:\n" + piege : "") + "\n\nJSON: {\"piege_reponse\":\"" + (piege ? "réponse type à cette question piège, à la 1re personne, 3 à 5 phrases, honnête, appuyée sur le CV" : "") + "\",\"ecarts\":[{\"ecart\":\"l'écart en 1 phrase concrète (ce que demande l'offre / ce qui manque dans le CV)\",\"importance\":\"élevée|moyenne\",\"presenter\":\"comment le présenter honnêtement en entretien, en le reliant à une expérience réelle du CV (2 phrases max)\",\"preparer\":[\"2 ou 3 choses concrètes à préparer ou réviser d'ici l'entretien\"],\"phrase\":\"la phrase prête à dire, à la 1re personne, honnête, appuyée sur le CV\"}]}",
       };
     },
   },
@@ -550,7 +561,7 @@ async function handleAI(req, res, d) {
     const data = await r.json();
     console.log(`${new Date().toISOString()} ia etape=${d.step} status=${r.status} ip=${ipKey} ${p ? 'pass' : 'gratuit global=' + globalCount}`);
     if (!r.ok) { refund(); return send(res, r.status === 401 || r.status === 403 ? 502 : r.status, { error: { type: 'upstream_error', message: (data && data.error && data.error.message) || 'Erreur du moteur IA.' } }); }
-    if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre' }[d.step]);
+    if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre', ecarts: 'ecarts' }[d.step]);
     return send(res, 200, data);
   } catch (e) {
     refund();
@@ -572,7 +583,7 @@ async function handleCheckout(req, res, d) {
     'line_items[0][price_data][currency]': 'eur',
     'line_items[0][price_data][unit_amount]': String(PASS_PRICE_CENTS),
     'line_items[0][price_data][product_data][name]': 'Pass PrepMyJob 30 jours',
-    'line_items[0][price_data][product_data][description]': `Jusqu'à ${PASS_OFFRES} offres d'emploi : questions et réponses types, simulation notée, lettre de motivation. Paiement unique, sans abonnement.`,
+    'line_items[0][price_data][product_data][description]': `Jusqu'à ${PASS_OFFRES} offres d'emploi : questions et réponses types, plan pour combler les écarts, simulation notée, lettre de motivation. Paiement unique, sans abonnement.`,
     'payment_intent_data[receipt_email]': email,
     'payment_intent_data[description]': `Pass PrepMyJob 30 jours (accès immédiat demandé, CGV du ${dateFr(Date.parse(CGV_VERSION))})`,
     // Facture envoyée par Stripe après paiement (réglage Stripe « Paiements réussis » activé)
@@ -701,14 +712,14 @@ function pageStats() {
   const e = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const LABELS = { visite: 'Pages vues (hors appli)', appli: 'Appli ouverte', analyse: 'Analyses gratuites', paiement_vu: 'Fenêtre de paiement vue',
     paiement_ouvert: 'Paiement Stripe ouvert', pass_paye: 'Pass payés', pass_offert: 'Pass offerts (code promo)', questions: 'Questions générées',
-    simulation: 'Réponses notées', lettre: 'Lettres générées' };
+    simulation: 'Réponses notées', lettre: 'Lettres générées', ecarts: 'Plans des écarts' };
   const TUNNEL = ['appli', 'analyse', 'paiement_vu', 'paiement_ouvert', 'pass_paye'];
   const bloc = (n, titre) => {
     const ev = total(n, 'ev'), src = total(n, 'src'), pages = total(n, 'pages');
     const max = Math.max(1, ...TUNNEL.map((k) => ev[k] || 0));
     const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 + ' %' : '–');
     const tunnel = TUNNEL.map((k, i) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b>${i ? `<small>${pct(ev[k] || 0, ev[TUNNEL[i - 1]] || 0)} de l'étape d'avant</small>` : ''}</div><div class="bar"><i style="width:${Math.round(((ev[k] || 0) / max) * 100)}%"></i></div>`).join('');
-    const autres = ['visite', 'pass_offert', 'questions', 'simulation', 'lettre'].map((k) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b></div>`).join('');
+    const autres = ['visite', 'pass_offert', 'questions', 'ecarts', 'simulation', 'lettre'].map((k) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b></div>`).join('');
     const liste = (o, max) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, max).map(([k, v]) => `<div class="r"><span>${e(k)}</span><b>${v}</b></div>`).join('') || '<p class="m">Rien pour l’instant.</p>';
     const ca = (ev.pass_paye || 0) * PASS_PRICE_CENTS / 100;
     return `<section><h2>${titre}</h2><p class="ca">${ev.pass_paye || 0} pass payés · ${ca.toFixed(0)} € encaissés (hors remboursements)</p>

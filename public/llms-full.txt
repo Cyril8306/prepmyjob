@@ -27,7 +27,7 @@ L'analyse et la génération prennent quelques instants chacune. Comptez ensuite
 
 ### Fonctionnement
 **Que contient la préparation ?**
-Une analyse d'adéquation entre votre CV et l'offre (score sur 100, atouts, points à préparer), 14 questions probables avec des réponses types, une simulation notée, une lettre de motivation et une fiche à imprimer.
+Gratuitement : une analyse d'adéquation entre votre CV et l'offre (score sur 100, atouts, points à préparer) et la question qui risque le plus de vous piéger. Avec le pass : la réponse type à cette question, un plan pour combler les écarts entre votre CV et l'offre, 14 questions probables avec des réponses types, une simulation notée, une lettre de motivation et une fiche à imprimer.
 
 **Comment est calculé le score d'adéquation ?**
 C'est une appréciation générée par l'IA à partir de votre CV et de l'offre. Elle sert de repère pour voir où vous êtes solide et ce qu'il faut préparer ; ce n'est pas une prédiction de recrutement.
@@ -84,7 +84,7 @@ Testez l'outil la veille, placez la caméra à hauteur des yeux, éclairez votre
 
 ### Pass et paiement
 **Que comprend le pass à 14 € ?**
-Pendant 30 jours, la préparation complète pour 5 offres d'emploi au maximum : 14 questions probables avec réponses types, simulation notée, lettre de motivation et dossier à imprimer. C'est un paiement unique, sans abonnement ni reconduction. Détails sur la page Prix.
+Pendant 30 jours, la préparation complète pour 15 offres d'emploi au maximum : 14 questions probables avec réponses types, plan pour combler les écarts, simulation notée, lettre de motivation et dossier à imprimer. C'est un paiement unique, sans abonnement ni reconduction. Détails sur la page Prix.
 
 **Le pass est-il un abonnement ?**
 Non. C'est un paiement unique de 14 € : rien n'est prélevé ensuite et le pass s'arrête de lui-même au bout de 30 jours.
@@ -96,7 +96,7 @@ Vous indiquez votre e-mail et payez sur la page sécurisée de Stripe : PrepMyJo
 Dans l'application, touchez « Vous avez déjà un pass ? » et saisissez l'e-mail utilisé pour le paiement.
 
 **Puis-je me rétracter et être remboursé ?**
-Oui, pendant 14 jours, depuis la page Renoncer au contrat ici. Comme l'accès est immédiat, chaque offre d'emploi déjà préparée reste due (1/5 du prix, soit 2,80 €) ; le reste vous est remboursé et vous recevez un accusé de réception par e-mail. Détails dans les CGV.
+Oui, pendant 14 jours, depuis la page Renoncer au contrat ici. Comme l'accès est immédiat, chaque offre d'emploi déjà préparée reste due (1/15 du prix, soit 0,93 €) ; le reste vous est remboursé et vous recevez un accusé de réception par e-mail. Détails dans les CGV.
 
 ### PrepMyJob et les autres outils
 **Quelle différence entre PrepMyJob et ChatGPT ?**
