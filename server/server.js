@@ -137,6 +137,20 @@ function sourceDe(referrer, utm) {
 const BOT_RE = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|node-fetch|go-http/i;
 const perIpEv = new Map();
 
+// État réel de la clé IA : une clé expirée ou révoquée ne se voit pas autrement (incident du 03/11/2026).
+let IA_OK = null;
+async function verifierIA() {
+  if (!KEY) { IA_OK = false; return; }
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/models?limit=1', {
+      headers: { 'x-api-key': KEY, 'anthropic-version': '2023-06-01' }, signal: AbortSignal.timeout(10000),
+    });
+    if (IA_OK !== r.ok) console.log(`${new Date().toISOString()} ia_cle=${r.ok ? 'OK' : 'REFUSEE status=' + r.status}`);
+    IA_OK = r.ok;
+  } catch (e) { /* réseau indisponible : on garde le dernier état connu */ }
+}
+setInterval(verifierIA, 30 * 60000).unref();
+
 let day = '';
 let globalCount = 0;
 const perIp = new Map();
@@ -560,6 +574,7 @@ async function handleAI(req, res, d) {
     });
     const data = await r.json();
     console.log(`${new Date().toISOString()} ia etape=${d.step} status=${r.status} ip=${ipKey} ${p ? 'pass' : 'gratuit global=' + globalCount}`);
+    if (r.status === 401) IA_OK = false;
     if (!r.ok) { refund(); return send(res, r.status === 401 || r.status === 403 ? 502 : r.status, { error: { type: 'upstream_error', message: (data && data.error && data.error.message) || 'Erreur du moteur IA.' } }); }
     if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre', ecarts: 'ecarts' }[d.step]);
     return send(res, 200, data);
@@ -742,7 +757,7 @@ const ROUTES = {
 const server = http.createServer(async (req, res) => {
   const url = (req.url || '').split('?')[0];
 
-  if (req.method === 'GET' && url === '/api/health') return send(res, 200, { ok: true, configured: Boolean(KEY), paiement: Boolean(STRIPE_KEY), email: MAIL_OK, day, globalCount });
+  if (req.method === 'GET' && url === '/api/health') return send(res, 200, { ok: true, configured: Boolean(KEY), ia: IA_OK, paiement: Boolean(STRIPE_KEY), email: MAIL_OK, day, globalCount });
   if (req.method === 'GET' && url === '/api/stats') {
     const k = new URLSearchParams((req.url || '').split('?')[1] || '').get('k') || '';
     const ok = k.length === STATS_KEY.length && crypto.timingSafeEqual(Buffer.from(k), Buffer.from(STATS_KEY));
@@ -769,6 +784,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`PrepMyJob relais prêt sur ${HOST}:${PORT} (modèle ${MODEL}, clé ${KEY ? 'présente' : 'ABSENTE'}, paiement ${STRIPE_KEY ? (STRIPE_KEY.startsWith('sk_live') || STRIPE_KEY.startsWith('rk_live') ? 'RÉEL' : 'TEST') : 'fermé'})`);
+  verifierIA();
   // Vérifie la connexion à la boîte e-mail au démarrage (sans rien envoyer) : visible dans /api/health
   if (SMTP_PASS) smtp([...smtpLogin(), ['QUIT', 221]]).then(() => { MAIL_OK = true; console.log('E-mail : connexion SMTP OK'); })
     .catch((e) => console.log(`E-mail : connexion SMTP en échec (${e.message})`));
