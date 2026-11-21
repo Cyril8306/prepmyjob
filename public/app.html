@@ -258,6 +258,8 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .pw-check input{margin-top:2px;width:18px;height:18px;flex-shrink:0;accent-color:var(--accent)}
 .pw-check a{color:var(--accent)}
 .pw-small{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5}
+.verif-warn{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 10px}
+.verif-ok{font-size:13px;color:var(--green);line-height:1.5;margin:0 0 12px;font-weight:600}
 .piege{margin-top:20px;border:1px solid rgba(231,192,101,.35);background:rgba(231,192,101,.07);border-radius:13px;padding:14px 15px}
 .piege-k{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
 .piege-q{font-size:16px;font-weight:600;line-height:1.5;margin:0 0 8px;color:var(--text)}
@@ -616,7 +618,11 @@ const I18N={
     'ecarts.teaser':"Pour chaque écart entre votre CV et l'offre : comment le présenter honnêtement, quoi préparer, la phrase à dire.",
     'ecarts.blur':"Écart 1 · Présentez votre expérience la plus proche, préparez un exemple chiffré, puis…",
     'ecarts.locked':"Inclus dans le pass · 14 €",'ecarts.btn':"Créer mon plan pour combler les écarts",
-    'ecarts.n':"Écart {0} sur {1}",'ecarts.presenter':"Comment le présenter",'ecarts.preparer':"À préparer d'ici l'entretien",'ecarts.phrase':"La phrase à dire",
+    'ecarts.n':"Écart {0} sur {1}",
+    'verif.warn':"Relisez : ne dites rien qui ne soit pas vrai. Les passages entre crochets sont à compléter avec vos propres exemples.",
+    'verif.btn':"Vérifier que rien n'est inventé (≈ 20 s)",
+    'verif.ok':"✓ Vérifié : uniquement des faits de votre CV. Les passages entre crochets sont à compléter.",
+    'verif.n':"({0} passage(s) corrigé(s))",'ecarts.presenter':"Comment le présenter",'ecarts.preparer':"À préparer d'ici l'entretien",'ecarts.phrase':"La phrase à dire",
     'pay.email':"Votre e-mail (pour le reçu et pour retrouver votre pass)",
     'pay.consent':"J'accepte les <a href=\"/cgv\" target=\"_blank\">conditions générales de vente</a> et je demande l'accès immédiat au pass. Je reconnais qu'en cas de rétractation dans les 14 jours, seule la part non utilisée me sera remboursée.",
     'pay.btn':"Payer 14 € avec Stripe",'pay.redirect':"Ouverture du paiement…",
@@ -780,6 +786,7 @@ const SEQ={
   questions:["Étude de votre parcours…","Analyse des attentes du recruteur…","Anticipation des questions probables…","Rédaction de réponses sur-mesure…","Personnalisation sur votre profil…"],
   eval:["Lecture de votre réponse…","Comparaison aux attentes du poste…","Évaluation de la pertinence…","Préparation d'un feedback précis…"],
   ecarts:["Comparaison de votre CV et de l'offre…","Repérage des écarts…","Recherche d'appuis dans votre parcours…","Rédaction de votre plan…"],
+  verif:["Relecture phrase par phrase…","Comparaison avec votre CV…","Remplacement de ce qui n'y figure pas…","Presque terminé…"],
   letter:["Analyse de votre profil…","Croisement CV + offre…","Choix des arguments clés…","Rédaction de votre lettre…","Mise en forme finale…"]
 };
 function rotate(setFn,msgs){let i=0;setFn(msgs[0]);const id=setInterval(()=>{i=(i+1)%msgs.length;setFn(msgs[i])},1400);return ()=>clearInterval(id)}
@@ -930,7 +937,9 @@ function ecartsBlockHTML(){
   if(!S.analysis)return '';
   const head=`<h3>${t('ecarts.title')}</h3>`;
   if(!PASS)return head+`<div class="locked"><p class="sub" style="margin:0 0 8px">${t('ecarts.teaser')}</p><p class="blur">${t('ecarts.blur')}</p><p class="lk"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> ${t('ecarts.locked')}</p></div>`;
-  if(S.ecarts&&S.ecarts.list&&S.ecarts.list.length)return head+S.ecarts.list.map((e,i)=>`<div class="ecart"><div class="ecart-k">${tf('ecarts.n',i+1,S.ecarts.list.length)}${e.importance?' · '+escH(e.importance):''}</div>
+  if(S.ecarts&&S.ecarts.list&&S.ecarts.list.length)return head+(S.ecarts.verifie
+    ?`<p class="verif-ok">${t('verif.ok')}${S.ecarts.corrections?' '+tf('verif.n',S.ecarts.corrections):''}</p>`
+    :`<p class="verif-warn">${t('verif.warn')}</p><button class="btn ghost full" id="btnVerif" style="margin-bottom:12px" onclick="verifEcarts()">${t('verif.btn')}</button>`)+S.ecarts.list.map((e,i)=>`<div class="ecart"><div class="ecart-k">${tf('ecarts.n',i+1,S.ecarts.list.length)}${e.importance?' · '+escH(e.importance):''}</div>
     <p class="ecart-t">${escH(e.ecart)}</p>
     ${e.presenter?`<p class="ecart-h">${t('ecarts.presenter')}</p><p class="ecart-p">${escH(e.presenter)}</p>`:''}
     ${Array.isArray(e.preparer)&&e.preparer.length?`<p class="ecart-h">${t('ecarts.preparer')}</p><ul class="ecart-l">${e.preparer.map(x=>'<li>'+escH(x)+'</li>').join('')}</ul>`:''}
@@ -949,6 +958,19 @@ async function genEcarts(){
     if(!list.length)throw new Error(t('err.illegible'));
     S.ecarts={list,piegeReponse:v&&typeof v.piege_reponse==='string'?v.piege_reponse.trim():''};save();stopThinking();renderAnalyse();
   }catch(e){stopThinking();if(box)box.innerHTML='<h3>'+t('ecarts.title')+'</h3><div class="note">'+escH(e.message)+'</div><button class="btn" style="margin-top:10px" onclick="genEcarts()">'+t('err.retry')+'</button>'}
+}
+
+async function verifEcarts(){
+  if(!S.ecarts||!S.ecarts.list||!PASS)return;
+  const b=$('#btnVerif');if(b){b.disabled=true;b.insertAdjacentHTML('afterend',thinking(SEQ.verif))}
+  try{
+    const plan=JSON.stringify({piege_reponse:S.ecarts.piegeReponse||'',ecarts:S.ecarts.list});
+    const r=await callAI('verif',{cv:S.cv,offre:S.offre,plan});
+    const v=parseJSON(r);
+    if(!v||!Array.isArray(v.ecarts)||!v.ecarts.filter(e=>e&&e.ecart).length)throw new Error(t('err.illegible'));
+    S.ecarts={list:v.ecarts.filter(e=>e&&e.ecart),piegeReponse:typeof v.piege_reponse==='string'?v.piege_reponse.trim():S.ecarts.piegeReponse,verifie:true,corrections:Number(v.corrections)||0};
+    save();stopThinking();renderAnalyse();
+  }catch(e){stopThinking();document.querySelectorAll('#ecartsBox .loading').forEach(x=>x.remove());if(b)b.disabled=false;toast(e.message)}
 }
 
 /* ---------- GENERATE QUESTIONS ---------- */

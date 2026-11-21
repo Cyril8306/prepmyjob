@@ -97,7 +97,7 @@ function savePasses() {
 const STATS_FILE = path.join(DATA_DIR, 'stats.json');
 const STATS_KEY = crypto.createHmac('sha256', SECRET).update('stats').digest('hex').slice(0, 24);
 const STATS_DAYS = 395; // 13 mois
-const EVENTS = ['visite', 'appli', 'analyse', 'questions', 'simulation', 'lettre', 'ecarts', 'paiement_vu', 'paiement_ouvert', 'pass_paye', 'pass_offert'];
+const EVENTS = ['visite', 'appli', 'analyse', 'questions', 'simulation', 'lettre', 'ecarts', 'verif', 'paiement_vu', 'paiement_ouvert', 'pass_paye', 'pass_offert'];
 const CLIENT_EVENTS = new Set(['visite', 'appli', 'paiement_vu']);
 const stats = Object.assign(Object.create(null), readJson(STATS_FILE, {}));
 let statsDirty = false;
@@ -264,6 +264,18 @@ const STEPS = {
       return {
         system: "Tu es un coach d'entretien d'embauche exigeant et honnête. Tu aides un candidat à combler, pour l'entretien, les écarts entre son CV et l'offre. Règles absolues : ne conseille JAMAIS de mentir ni d'inventer une expérience, un diplôme ou un chiffre ; appuie-toi uniquement sur ce qui figure dans le CV ; ne cite AUCUN lien, site, formation ou organisme précis. RÈGLE ABSOLUE SUR LES FAITS : n'utilise QUE ce qui figure dans le CV. N'invente aucun chiffre, outil, méthode, tâche, responsabilité ou résultat, et ne gonfle pas le périmètre réel d'un poste. Quand un exemple ou un chiffre précis rendrait la réponse plus forte mais n'est pas dans le CV, écris à la place, entre crochets, ce que le candidat doit compléter lui-même, par exemple [citez un contrôle que vous faisiez réellement]. Détecte la langue de l'offre et réponds DANS CETTE LANGUE. Réponds UNIQUEMENT en JSON valide, sans texte autour.",
         content: "OFFRE:\n" + offre + "\n\nCV:\n" + cv + "\n\nIdentifie les 3 ou 4 écarts les plus importants entre ce que demande l'offre et ce que montre le CV, du plus important au moins important." + (piege ? "\n\nQUESTION PIÈGE QUE LE RECRUTEUR VA POSER:\n" + piege : "") + "\n\nJSON: {\"piege_reponse\":\"" + (piege ? "réponse type à cette question piège, à la 1re personne, 3 à 5 phrases, honnête, appuyée sur le CV" : "") + "\",\"ecarts\":[{\"ecart\":\"l'écart en 1 phrase concrète (ce que demande l'offre / ce qui manque dans le CV)\",\"importance\":\"élevée|moyenne\",\"presenter\":\"comment le présenter honnêtement en entretien, en le reliant à une expérience réelle du CV (2 phrases max)\",\"preparer\":[\"2 ou 3 choses concrètes à préparer ou réviser d'ici l'entretien\"],\"phrase\":\"la phrase prête à dire, à la 1re personne, honnête, appuyée sur le CV\"}]}",
+      };
+    },
+  },
+  verif: {
+    // Même offre que le plan : aucune offre supplémentaire n'est comptée.
+    paid: true, max: 2800, offre: true,
+    build(d) {
+      const cv = str(d.cv, 60000, 30), offre = str(d.offre, 60000, 30), plan = str(d.plan, 20000, 20);
+      if (!cv || !offre || !plan) return null;
+      return {
+        system: "Tu es un relecteur factuel impitoyable. Tu compares un plan de préparation d'entretien au CV du candidat. Pour chaque affirmation sur le passé du candidat (tâche, outil, méthode, chiffre, responsabilité, résultat, contrôle effectué), vérifie qu'elle figure dans le CV. Si elle n'y figure pas, ou si elle exagère le CV (par exemple « je vérifiais » alors que le CV dit « je transmettais »), réécris-la pour qu'elle colle exactement au CV, ou remplace-la par une consigne entre crochets que le candidat complétera, par exemple [citez un contrôle que vous faisiez réellement]. Ne touche pas aux conseils, aux choses à préparer ni aux crochets déjà présents. Garde la même langue. Réponds UNIQUEMENT avec le JSON corrigé, même structure, sans texte autour.",
+        content: "CV:\n" + cv + "\n\nOFFRE (pour contexte):\n" + offre.slice(0, 6000) + "\n\nPLAN À VÉRIFIER (JSON):\n" + plan + "\n\nRenvoie le JSON corrigé : {\"piege_reponse\":\"...\",\"ecarts\":[{\"ecart\":\"...\",\"importance\":\"...\",\"presenter\":\"...\",\"preparer\":[\"...\"],\"phrase\":\"...\"}],\"corrections\":nombre d'affirmations corrigées}",
       };
     },
   },
@@ -576,7 +588,7 @@ async function handleAI(req, res, d) {
     console.log(`${new Date().toISOString()} ia etape=${d.step} status=${r.status} ip=${ipKey} ${p ? 'pass' : 'gratuit global=' + globalCount}`);
     if (r.status === 401) IA_OK = false;
     if (!r.ok) { refund(); return send(res, r.status === 401 || r.status === 403 ? 502 : r.status, { error: { type: 'upstream_error', message: (data && data.error && data.error.message) || 'Erreur du moteur IA.' } }); }
-    if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre', ecarts: 'ecarts' }[d.step]);
+    if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre', ecarts: 'ecarts', verif: 'verif' }[d.step]);
     return send(res, 200, data);
   } catch (e) {
     refund();
@@ -727,14 +739,14 @@ function pageStats() {
   const e = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const LABELS = { visite: 'Pages vues (hors appli)', appli: 'Appli ouverte', analyse: 'Analyses gratuites', paiement_vu: 'Fenêtre de paiement vue',
     paiement_ouvert: 'Paiement Stripe ouvert', pass_paye: 'Pass payés', pass_offert: 'Pass offerts (code promo)', questions: 'Questions générées',
-    simulation: 'Réponses notées', lettre: 'Lettres générées', ecarts: 'Plans des écarts' };
+    simulation: 'Réponses notées', lettre: 'Lettres générées', ecarts: 'Plans des écarts', verif: 'Plans vérifiés (option)' };
   const TUNNEL = ['appli', 'analyse', 'paiement_vu', 'paiement_ouvert', 'pass_paye'];
   const bloc = (n, titre) => {
     const ev = total(n, 'ev'), src = total(n, 'src'), pages = total(n, 'pages');
     const max = Math.max(1, ...TUNNEL.map((k) => ev[k] || 0));
     const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 + ' %' : '–');
     const tunnel = TUNNEL.map((k, i) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b>${i ? `<small>${pct(ev[k] || 0, ev[TUNNEL[i - 1]] || 0)} de l'étape d'avant</small>` : ''}</div><div class="bar"><i style="width:${Math.round(((ev[k] || 0) / max) * 100)}%"></i></div>`).join('');
-    const autres = ['visite', 'pass_offert', 'questions', 'ecarts', 'simulation', 'lettre'].map((k) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b></div>`).join('');
+    const autres = ['visite', 'pass_offert', 'questions', 'ecarts', 'verif', 'simulation', 'lettre'].map((k) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b></div>`).join('');
     const liste = (o, max) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, max).map(([k, v]) => `<div class="r"><span>${e(k)}</span><b>${v}</b></div>`).join('') || '<p class="m">Rien pour l’instant.</p>';
     const ca = (ev.pass_paye || 0) * PASS_PRICE_CENTS / 100;
     return `<section><h2>${titre}</h2><p class="ca">${ev.pass_paye || 0} pass payés · ${ca.toFixed(0)} € encaissés (hors remboursements)</p>
