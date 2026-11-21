@@ -64,4 +64,6 @@ else
     certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m cyril.cretin83@gmail.com --redirect
   fi
 fi
+STATS_KEY=$(node -e "const c=require('crypto'),f=require('fs');const s=f.readFileSync('$APP/data/secret.txt','utf8').trim();process.stdout.write(c.createHmac('sha256',s).update('stats').digest('hex').slice(0,24))" 2>/dev/null || true)
+if [ -n "$STATS_KEY" ]; then echo "Tes statistiques (lien privé, à garder pour toi) : https://$DOMAIN/api/stats?k=$STATS_KEY"; fi
 echo "Terminé. Test : https://$DOMAIN"

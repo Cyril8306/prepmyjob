@@ -92,6 +92,51 @@ function savePasses() {
   writeJson(PASS_FILE, passes);
 }
 
+// ── Statistiques de fréquentation : compteurs agrégés par jour, sans cookie, sans IP ni identifiant enregistrés.
+// Lecture : GET /api/stats?k=<clé> (la clé est dérivée du secret local ; deploy/install.sh affiche le lien).
+const STATS_FILE = path.join(DATA_DIR, 'stats.json');
+const STATS_KEY = crypto.createHmac('sha256', SECRET).update('stats').digest('hex').slice(0, 24);
+const STATS_DAYS = 395; // 13 mois
+const EVENTS = ['visite', 'appli', 'analyse', 'questions', 'simulation', 'lettre', 'paiement_vu', 'paiement_ouvert', 'pass_paye', 'pass_offert'];
+const CLIENT_EVENTS = new Set(['visite', 'appli', 'paiement_vu']);
+const stats = Object.assign(Object.create(null), readJson(STATS_FILE, {}));
+let statsDirty = false;
+const jourParis = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' }); // AAAA-MM-JJ
+function compter(ev, page, source) {
+  if (!EVENTS.includes(ev)) return;
+  const j = jourParis();
+  const s = stats[j] || (stats[j] = { ev: {}, src: {}, pages: {} });
+  s.ev[ev] = (s.ev[ev] || 0) + 1;
+  if (source) s.src[source] = (s.src[source] || 0) + 1;
+  if (page && (s.pages[page] || Object.keys(s.pages).length < 200)) s.pages[page] = (s.pages[page] || 0) + 1;
+  statsDirty = true;
+}
+function saveStats() {
+  if (!statsDirty) return;
+  statsDirty = false;
+  const limite = new Date(Date.now() - STATS_DAYS * DAY_MS).toISOString().slice(0, 10);
+  for (const j of Object.keys(stats)) if (j < limite) delete stats[j];
+  writeJson(STATS_FILE, stats);
+}
+setInterval(saveStats, 60000).unref();
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { try { saveStats(); } finally { process.exit(0); } });
+/** Provenance d'une entrée sur le site : paramètre utm_source, sinon le domaine d'origine. Les pages internes ne comptent pas. */
+function sourceDe(referrer, utm) {
+  const u = String(utm || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30);
+  if (u) return u;
+  let h = '';
+  try { h = new URL(String(referrer || '')).hostname.replace(/^www\./, ''); } catch (e) { return 'direct'; }
+  if (!h) return 'direct';
+  if (h.endsWith('prepmyjob.com') || h.endsWith('prepmyjob.fr')) return null;
+  const connus = [['tiktok', 'tiktok'], ['google', 'google'], ['bing', 'bing'], ['chatgpt', 'chatgpt'], ['openai', 'chatgpt'], ['perplexity', 'perplexity'],
+    ['claude.ai', 'claude'], ['gemini', 'gemini'], ['facebook', 'facebook'], ['instagram', 'instagram'], ['linkedin', 'linkedin'], ['reddit', 'reddit'],
+    ['youtube', 'youtube'], ['duckduckgo', 'duckduckgo'], ['qwant', 'qwant'], ['ecosia', 'ecosia'], ['t.co', 'x'], ['x.com', 'x']];
+  const c = connus.find(([k]) => h.includes(k));
+  return c ? c[1] : 'autre site';
+}
+const BOT_RE = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|node-fetch|go-http/i;
+const perIpEv = new Map();
+
 let day = '';
 let globalCount = 0;
 const perIp = new Map();
@@ -99,7 +144,7 @@ const perIpAccount = new Map();
 
 function rollDay() {
   const today = new Date().toISOString().slice(0, 10);
-  if (today !== day) { day = today; globalCount = 0; perIp.clear(); perIpAccount.clear(); }
+  if (today !== day) { day = today; globalCount = 0; perIp.clear(); perIpAccount.clear(); perIpEv.clear(); }
 }
 
 function send(res, status, obj) {
@@ -304,6 +349,7 @@ async function createPassFromSession(s) {
   };
   passes[p.id] = p; savePasses();
   console.log(`${new Date().toISOString()} evenement=pass_active montant=${p.montant}`);
+  compter(p.montant > 0 ? 'pass_paye' : 'pass_offert');
   if (email) {
     const text = [
       'Bonjour,', '', 'Merci pour votre achat. Voici la confirmation de votre commande.', '',
@@ -504,6 +550,7 @@ async function handleAI(req, res, d) {
     const data = await r.json();
     console.log(`${new Date().toISOString()} ia etape=${d.step} status=${r.status} ip=${ipKey} ${p ? 'pass' : 'gratuit global=' + globalCount}`);
     if (!r.ok) { refund(); return send(res, r.status === 401 || r.status === 403 ? 502 : r.status, { error: { type: 'upstream_error', message: (data && data.error && data.error.message) || 'Erreur du moteur IA.' } }); }
+    if (d.step === 'questions' ? d.lot === 0 : d.step !== 'ocr') compter({ analyse: 'analyse', questions: 'questions', eval: 'simulation', lettre: 'lettre' }[d.step]);
     return send(res, 200, data);
   } catch (e) {
     refund();
@@ -543,6 +590,7 @@ async function handleCheckout(req, res, d) {
     cancel_url: SITE_URL + '/app?paiement=annule',
   });
   console.log(`${now.toISOString()} evenement=paiement_ouvert`);
+  compter('paiement_ouvert');
   return send(res, 200, { url: s.url });
 }
 
@@ -630,16 +678,67 @@ async function handleRetract(req, res, d) {
   return send(res, 200, { ok: true, le: quand, issue, email_envoye: envoye });
 }
 
+/** Visite d'une page, ouverture de l'appli ou de la fenêtre de paiement (envoyé par navigator.sendBeacon). */
+async function handleEv(req, res, d) {
+  const ua = String(req.headers['user-agent'] || '');
+  const k = ipKeyOf(req), n = perIpEv.get(k) || 0;
+  if (CLIENT_EVENTS.has(d.e) && ua && !BOT_RE.test(ua) && n < 200) {
+    perIpEv.set(k, n + 1);
+    const p = typeof d.p === 'string' && /^\/[a-z0-9\-/]{0,80}$/.test(d.p) ? (d.p.replace(/\/+$/, '') || '/') : null;
+    compter(d.e, d.e === 'paiement_vu' ? null : p, d.e === 'paiement_vu' ? null : sourceDe(d.r, d.u));
+  }
+  res.writeHead(204, { 'Cache-Control': 'no-store' });
+  res.end();
+}
+
+function pageStats() {
+  const jours = Object.keys(stats).sort().reverse();
+  const total = (n, champ) => {
+    const out = {};
+    for (const j of jours.slice(0, n)) for (const [k, v] of Object.entries(stats[j][champ] || {})) out[k] = (out[k] || 0) + v;
+    return out;
+  };
+  const e = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const LABELS = { visite: 'Pages vues (hors appli)', appli: 'Appli ouverte', analyse: 'Analyses gratuites', paiement_vu: 'Fenêtre de paiement vue',
+    paiement_ouvert: 'Paiement Stripe ouvert', pass_paye: 'Pass payés', pass_offert: 'Pass offerts (code promo)', questions: 'Questions générées',
+    simulation: 'Réponses notées', lettre: 'Lettres générées' };
+  const TUNNEL = ['appli', 'analyse', 'paiement_vu', 'paiement_ouvert', 'pass_paye'];
+  const bloc = (n, titre) => {
+    const ev = total(n, 'ev'), src = total(n, 'src'), pages = total(n, 'pages');
+    const max = Math.max(1, ...TUNNEL.map((k) => ev[k] || 0));
+    const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 + ' %' : '–');
+    const tunnel = TUNNEL.map((k, i) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b>${i ? `<small>${pct(ev[k] || 0, ev[TUNNEL[i - 1]] || 0)} de l'étape d'avant</small>` : ''}</div><div class="bar"><i style="width:${Math.round(((ev[k] || 0) / max) * 100)}%"></i></div>`).join('');
+    const autres = ['visite', 'pass_offert', 'questions', 'simulation', 'lettre'].map((k) => `<div class="r"><span>${LABELS[k]}</span><b>${ev[k] || 0}</b></div>`).join('');
+    const liste = (o, max) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, max).map(([k, v]) => `<div class="r"><span>${e(k)}</span><b>${v}</b></div>`).join('') || '<p class="m">Rien pour l’instant.</p>';
+    const ca = (ev.pass_paye || 0) * PASS_PRICE_CENTS / 100;
+    return `<section><h2>${titre}</h2><p class="ca">${ev.pass_paye || 0} pass payés · ${ca.toFixed(0)} € encaissés (hors remboursements)</p>
+      <h3>Tunnel</h3>${tunnel}<h3>Autres compteurs</h3>${autres}<h3>D’où viennent les visiteurs</h3>${liste(src, 12)}<h3>Pages les plus vues</h3>${liste(pages, 10)}</section>`;
+  };
+  const parJour = jours.slice(0, 14).map((j) => { const v = stats[j].ev; return `<tr><td>${j.slice(5).split('-').reverse().join('/')}</td><td>${(v.visite || 0) + (v.appli || 0)}</td><td>${v.analyse || 0}</td><td>${v.paiement_ouvert || 0}</td><td>${v.pass_paye || 0}</td></tr>`; }).join('');
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Statistiques PrepMyJob</title>
+<style>body{font-family:system-ui,sans-serif;background:#14151a;color:#eef0f4;margin:0;padding:16px;line-height:1.5}main{max-width:560px;margin:0 auto}h1{font-size:20px}h2{font-size:17px;margin:26px 0 4px}h3{font-size:13px;color:#9a9ba7;margin:16px 0 6px;font-weight:600}.ca{color:#e7c065;margin:0 0 6px}.r{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:3px 0;flex-wrap:wrap}.r small{width:100%;color:#9a9ba7;font-size:12px}.bar{height:6px;background:#24262f;border-radius:3px;margin:0 0 8px}.bar i{display:block;height:6px;background:#4cba84;border-radius:3px}section{border-top:1px solid #2c2e3a}.m{color:#9a9ba7;font-size:13px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:5px 4px;border-bottom:1px solid #24262f;text-align:right}td:first-child,th:first-child{text-align:left}</style></head>
+<body><main><h1>Statistiques PrepMyJob</h1><p class="m">Compteurs anonymes, sans cookie. Mis à jour en direct ; ${jours.length ? 'depuis le ' + e(jours[jours.length - 1].split('-').reverse().join('/')) : 'aucune donnée pour l’instant'}. Heure de Paris.</p>
+${bloc(1, "Aujourd'hui")}${bloc(7, '7 derniers jours')}${bloc(30, '30 derniers jours')}
+<section><h2>14 derniers jours</h2><table><tr><th>Jour</th><th>Visites</th><th>Analyses</th><th>Paiements ouverts</th><th>Pass payés</th></tr>${parJour}</table></section></main></body></html>`;
+}
+
 const ROUTES = {
   '/api/ai': handleAI, '/api/checkout': handleCheckout, '/api/pass/activate': handleActivate,
   '/api/pass/recover': handleRecover, '/api/pass/status': handleStatus, '/api/retractation': handleRetract,
-  '/api/offre-lien': handleLien,
+  '/api/offre-lien': handleLien, '/api/ev': handleEv,
 };
 
 const server = http.createServer(async (req, res) => {
   const url = (req.url || '').split('?')[0];
 
   if (req.method === 'GET' && url === '/api/health') return send(res, 200, { ok: true, configured: Boolean(KEY), paiement: Boolean(STRIPE_KEY), email: MAIL_OK, day, globalCount });
+  if (req.method === 'GET' && url === '/api/stats') {
+    const k = new URLSearchParams((req.url || '').split('?')[1] || '').get('k') || '';
+    const ok = k.length === STATS_KEY.length && crypto.timingSafeEqual(Buffer.from(k), Buffer.from(STATS_KEY));
+    if (!ok) return fail(res, 404, 'Introuvable.');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
+    return res.end(pageStats());
+  }
   const route = ROUTES[url];
   if (!route) return fail(res, 404, 'Introuvable.');
   if (req.method !== 'POST') return fail(res, 405, 'Méthode non autorisée.');

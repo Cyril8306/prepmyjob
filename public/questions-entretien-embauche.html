@@ -257,5 +257,6 @@ footer a{color:var(--muted)}footer .links{display:flex;gap:16px;flex-wrap:wrap;m
 <script>
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('cei_theme',t)}catch(e){}}
 </script>
+<script>try{navigator.sendBeacon('/api/ev',new Blob([JSON.stringify({e:'visite',p:location.pathname,r:document.referrer,u:new URLSearchParams(location.search).get('utm_source')||''})],{type:'text/plain'}))}catch(e){}</script>
 </body>
 </html>

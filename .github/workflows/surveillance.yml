@@ -1,0 +1,63 @@
+# Surveillance du site : toutes les 15 minutes, GitHub teste prepmyjob.com (pages + relais IA) et valeurparts.fr.
+# En panne : une « issue » est ouverte (GitHub prévient le propriétaire du dépôt par e-mail).
+# Quand tout répond de nouveau : l'issue est fermée avec un commentaire (2e e-mail).
+# Limite GitHub : les tâches planifiées d'un dépôt public sont suspendues après 60 jours sans activité sur le dépôt.
+name: Surveillance du site
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: surveillance
+  cancel-in-progress: false
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Tester les sites
+        id: test
+        run: |
+          ko=""
+          for u in https://prepmyjob.com/ https://prepmyjob.com/api/health https://valeurparts.fr/; do
+            ok=0; c=000
+            for i in 1 2 3; do
+              c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || true)
+              if [ "$c" = "200" ]; then ok=1; break; fi
+              sleep 30
+            done
+            if [ "$ok" != "1" ]; then ko="$ko $u (code $c)"; fi
+          done
+          echo "ko=$ko" >> "$GITHUB_OUTPUT"
+          if [ -n "$ko" ]; then echo "En panne :$ko"; else echo "Tout répond."; fi
+
+      - name: Ouvrir ou fermer l'alerte
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KO: ${{ steps.test.outputs.ko }}
+        run: |
+          titre="Alerte : prepmyjob.com ne répond plus"
+          num=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "in:title \"$titre\"" --json number -q '.[0].number')
+          quand=$(TZ=Europe/Paris date '+%d/%m/%Y à %H:%M')
+          if [ -n "$KO" ]; then
+            if [ -z "$num" ]; then
+              gh issue create -R "$GITHUB_REPOSITORY" --title "$titre" --body "Vérifié le $quand (heure de Paris), 3 essais à 30 secondes d'intervalle. Ne répond pas :$KO
+
+          À faire : ouvre hPanel Hostinger, puis VPS.
+          - Statut « Maintenance » : c'est Hostinger, attends (aucune action possible).
+          - Statut « Arrêté » : clique sur « Commencer ».
+          - Statut « En cours d'exécution » mais site muet : préviens Claude.
+
+          Cette alerte se fermera toute seule quand le site répondra de nouveau."
+            fi
+          else
+            if [ -n "$num" ]; then
+              gh issue close "$num" -R "$GITHUB_REPOSITORY" --comment "Tout répond de nouveau (vérifié le $quand, heure de Paris)."
+            fi
+          fi

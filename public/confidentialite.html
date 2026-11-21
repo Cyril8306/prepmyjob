@@ -83,6 +83,8 @@
 
   <h2>Cookies</h2>
   <p>PrepMyJob n'utilise pas de cookies publicitaires ni de traceurs tiers à des fins marketing. Seules des données techniques sont enregistrées localement dans votre navigateur : la préférence de thème, vos saisies et, si vous l'avez acheté, l'identifiant de votre pass.</p>
+  <h2>Mesure d'audience</h2>
+  <p>Pour savoir quelles pages sont consultées et combien de personnes vont jusqu'au paiement, le serveur de PrepMyJob tient des compteurs anonymes par jour : nombre de pages vues, d'ouvertures de l'application, d'analyses et de paiements, et site d'origine de la visite (par exemple « google » ou « tiktok »). Aucun cookie n'est déposé, aucune adresse IP ni aucun identifiant n'est enregistré, et aucun service tiers n'est utilisé. Ces compteurs agrégés sont conservés 13 mois au plus.</p>
 
   <h2>Vos droits</h2>
   <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation et d'opposition sur vos données. Votre CV et l'offre n'étant pas conservés côté serveur, l'exercice le plus immédiat consiste à effacer les données du site dans votre navigateur. Pour les données liées au pass ou à une rétractation, et pour toute autre demande, contactez <a href="mailto:contact@prepmyjob.com">contact@prepmyjob.com</a>.</p>
@@ -109,5 +111,6 @@
     <p style="margin-top:14px">© 2026 PrepMyJob — Cyril CRETIN. Votre CV n'est pas conservé sur nos serveurs.</p>
   </footer>
 </div>
+<script>try{navigator.sendBeacon('/api/ev',new Blob([JSON.stringify({e:'visite',p:location.pathname,r:document.referrer,u:new URLSearchParams(location.search).get('utm_source')||''})],{type:'text/plain'}))}catch(e){}</script>
 </body>
 </html>

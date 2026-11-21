@@ -258,6 +258,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .pw-check input{margin-top:2px;width:18px;height:18px;flex-shrink:0;accent-color:var(--accent)}
 .pw-check a{color:var(--accent)}
 .pw-small{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5}
+.pw-promo{font-size:13px;color:var(--green);background:rgba(76,186,132,.1);border:1px solid rgba(76,186,132,.25);border-radius:10px;padding:8px 11px;margin-top:10px;line-height:1.45}
 .pw-recover{margin-top:16px;font-size:13px;color:var(--muted)}
 .pw-recover summary{cursor:pointer;color:var(--accent);font-weight:500}
 .pw-recover .row{display:flex;gap:8px;margin-top:10px}
@@ -473,6 +474,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
     <input type="email" id="pwEmail" autocomplete="email" inputmode="email" placeholder="vous@exemple.fr">
     <label class="pw-check"><input type="checkbox" id="pwConsent"><span data-i18n-html="pay.consent"></span></label>
     <button class="btn full lg" id="pwPay" onclick="startCheckout()" data-i18n="pay.btn">Payer 14 € avec Stripe</button>
+    <p class="pw-promo" data-i18n="pay.promo">Un code promo ? Vous le saisirez sur la page de paiement sécurisée.</p>
     <p class="pw-small" data-i18n="pay.small"></p>
     <details class="pw-recover">
       <summary data-i18n="pay.recoverTitle">Vous avez déjà un pass ?</summary>
@@ -594,6 +596,7 @@ const I18N={
     'pay.email':"Votre e-mail (pour le reçu et pour retrouver votre pass)",
     'pay.consent':"J'accepte les <a href=\"/cgv\" target=\"_blank\">conditions générales de vente</a> et je demande l'accès immédiat au pass. Je reconnais qu'en cas de rétractation dans les 14 jours, seule la part non utilisée me sera remboursée.",
     'pay.btn':"Payer 14 € avec Stripe",'pay.redirect':"Ouverture du paiement…",
+    'pay.promo':"Un code promo ? Vous le saisirez sur la page de paiement sécurisée.",
     'pay.small':"Paiement sécurisé par Stripe : PrepMyJob ne voit jamais vos coordonnées bancaires. TVA non applicable, art. 293 B du CGI.",
     'pay.recoverTitle':"Vous avez déjà un pass ?",'pay.recoverBtn':"Retrouver mon pass",
     'pay.close':"Fermer",'pay.badEmail':"Adresse e-mail invalide",'pay.needConsent':"Cochez la case des conditions de vente pour continuer",
@@ -662,6 +665,7 @@ async function postJSON(url,data,headers){
 function openPaywall(msg){
   const m=$('#pwMsg');m.textContent=msg||'';m.style.display=msg?'block':'none';
   $('#paywall').hidden=false;document.body.style.overflow='hidden';
+  try{navigator.sendBeacon('/api/ev',new Blob([JSON.stringify({e:'paiement_vu'})],{type:'text/plain'}))}catch(e){}
 }
 function closePaywall(){$('#paywall').hidden=true;document.body.style.overflow=''}
 async function startCheckout(){
@@ -1082,5 +1086,6 @@ handleReturn().finally(refreshPass);
 /* ---------- PWA ---------- */
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 </script>
+<script>try{navigator.sendBeacon('/api/ev',new Blob([JSON.stringify({e:'appli',p:location.pathname,r:document.referrer,u:new URLSearchParams(location.search).get('utm_source')||''})],{type:'text/plain'}))}catch(e){}</script>
 </body>
 </html>

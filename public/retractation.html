@@ -115,5 +115,6 @@ function confirmer(){
     .catch(function(e){erreur('err2',e.message+' Vous pouvez aussi écrire à contact@prepmyjob.com.');b.disabled=false;b.textContent='Confirmer la rétractation'});
 }
 </script>
+<script>try{navigator.sendBeacon('/api/ev',new Blob([JSON.stringify({e:'visite',p:location.pathname,r:document.referrer,u:new URLSearchParams(location.search).get('utm_source')||''})],{type:'text/plain'}))}catch(e){}</script>
 </body>
 </html>
