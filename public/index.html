@@ -69,7 +69,7 @@ a{color:inherit}
 header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .bar{display:flex;align-items:center;gap:14px;height:62px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 18px var(--serif)}
-.logo i{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#161208;display:grid;place-items:center;font:700 17px var(--serif);font-style:normal}
+.logo .mark{width:32px;height:32px;display:block;flex:none}.logo .mark svg{width:100%;height:100%;display:block}.lb1{fill:var(--text)}.lb2{fill:var(--accent);stroke:var(--bg);stroke-width:5;stroke-linejoin:round}.lck{fill:none;stroke:#14151a;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
 .bar nav{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
 .bar nav a{text-decoration:none}.bar nav a:hover{color:var(--text)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--btn);color:var(--btn-fg);font:600 15px var(--sans);padding:13px 22px;border-radius:10px;text-decoration:none;border:0;cursor:pointer}
@@ -144,7 +144,7 @@ footer a{text-underline-offset:3px}
 <body>
 <header>
   <div class="wrap bar">
-    <a class="logo" href="/"><i>P</i>PrepMyJob</a>
+    <a class="logo" href="/"><span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path class="lb1" d="M20 10 H54 a14 14 0 0 1 14 14 V44 a14 14 0 0 1 -14 14 H30 L16 70 L18 58 a14 14 0 0 1 -12 -14 V24 a14 14 0 0 1 14 -14 Z"/><path class="lb2" d="M46 32 H80 a14 14 0 0 1 14 14 V66 a14 14 0 0 1 -14 14 H78 L80 92 L68 80 H46 a14 14 0 0 1 -14 -14 V46 a14 14 0 0 1 14 -14 Z"/><path class="lck" d="M50 57 L59 66 L77 47"/></svg></span>PrepMyJob</a>
     <nav aria-label="Navigation principale"><a href="#comment">Comment ça marche</a><a href="#exemple">Exemple</a><a href="#faq">Questions</a><a href="/guides">Guides</a><a href="/prix">Prix</a></nav>
     <button class="theme" id="theme" aria-label="Changer de thème" type="button">◐</button>
     <a class="btn sm" href="/app"><span class="long">Préparer mon entretien</span><span class="short">Commencer</span></a>

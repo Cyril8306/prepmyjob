@@ -62,7 +62,7 @@ header{position:sticky;top:0;z-index:50;background:var(--header-bg);backdrop-fil
 .theme-btn:hover{color:var(--text);border-color:var(--faint)}
 .track{stroke:var(--track)}
 .logo{display:flex;align-items:center;gap:11px}
-.logo .mark{width:36px;height:36px;background:var(--accent);color:#161208;border-radius:10px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:19px}
+.logo .mark{width:38px;height:38px;display:block;flex:none}.logo .mark svg{width:100%;height:100%;display:block}.lb1{fill:var(--text)}.lb2{fill:var(--accent);stroke:var(--bg);stroke-width:5;stroke-linejoin:round}.lck{fill:none;stroke:#14151a;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
 .logo .wm{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.2px;line-height:1.1}
 .logo small{display:block;font-family:var(--sans);font-size:11px;font-weight:400;color:var(--muted);letter-spacing:.1px;margin-top:2px}
 .score-ring{display:flex;align-items:center;gap:9px}
@@ -294,7 +294,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 
 <header>
   <div class="head-row">
     <div class="logo">
-      <div class="mark">P</div>
+      <div class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path class="lb1" d="M20 10 H54 a14 14 0 0 1 14 14 V44 a14 14 0 0 1 -14 14 H30 L16 70 L18 58 a14 14 0 0 1 -12 -14 V24 a14 14 0 0 1 14 -14 Z"/><path class="lb2" d="M46 32 H80 a14 14 0 0 1 14 14 V66 a14 14 0 0 1 -14 14 H78 L80 92 L68 80 H46 a14 14 0 0 1 -14 -14 V46 a14 14 0 0 1 14 -14 Z"/><path class="lck" d="M50 57 L59 66 L77 47"/></svg></div>
       <div class="wm">PrepMyJob<small data-i18n="brand.tagline">Préparation d'entretien sur-mesure</small></div>
     </div>
     <div class="head-right">
